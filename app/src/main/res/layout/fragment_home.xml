@@ -69,14 +69,6 @@
                 android:padding="24dp"
                 android:gravity="center_horizontal">
 
-                <SearchView
-                    android:id="@+id/search_bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:queryHint="Search book..."
-                    android:iconifiedByDefault="false"
-                    android:layout_marginBottom="16dp" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -86,6 +78,7 @@
                     android:textColor="@color/black" />
 
                 <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/layout_categories"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -116,6 +109,27 @@
                         android:text="Fiction"
                         style="@style/Widget.MaterialComponents.Chip.Choice" />
                 </com.google.android.material.chip.ChipGroup>
+
+
+
+                <!-- Book list berdasarkan kategori -->
+                <TextView
+                    android:id="@+id/tv_category_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Books by Category"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"
+                    android:layout_marginTop="16dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_category_books"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp" />
+
 
                 <Button
                     android:id="@+id/btn_explore"

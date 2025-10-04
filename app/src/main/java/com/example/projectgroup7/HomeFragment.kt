@@ -1,78 +1,127 @@
 package com.example.projectgroup7
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.widget.*
+import com.example.projectgroup7.model.Book
+import com.example.projectgroup7.model.BookResponse
+import com.example.projectgroup7.network.RetrofitClient
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HomeFragment : Fragment() {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: BookAdapter
-    private val bookList = mutableListOf<Book>()
+    private lateinit var rvCategory: RecyclerView
+    private lateinit var rvNewest: RecyclerView
+    private lateinit var categoryAdapter: BookAdapter
+    private lateinit var newestAdapter: BookAdapter
+    private val categoryList = mutableListOf<Book>()
+    private val newestList = mutableListOf<Book>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (bookList.isEmpty()) {
-            bookList.addAll(
-                listOf(
-                    Book("Book 1", "Romance", "https://picsum.photos/200"),
-                    Book("Book 2", "Horror", "https://picsum.photos/201"),
-                    Book("Book 3", "Comedy", "https://picsum.photos/202")
-                )
-            )
-        }
-    }
+    ): View? = inflater.inflate(R.layout.fragment_home, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val greetingTextView = view.findViewById<TextView>(R.id.tv_greeting)
         val currentHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
-        val greeting = when (currentHour) {
+        greetingTextView.text = when (currentHour) {
             in 5..11 -> "Good Morning,"
             in 12..16 -> "Good Afternoon,"
             in 17..20 -> "Good Evening,"
             else -> "Good Night,"
         }
-        greetingTextView.text = greeting
 
-        recyclerView = view.findViewById(R.id.rv_new_books)
-        adapter = BookAdapter(bookList) { selectedBook ->
-            val bundle = Bundle().apply {
-                putString("title", selectedBook.title)
-                putString("category", selectedBook.category)
-                putString("image", selectedBook.imageUrl)
+        // Recycler setup
+        rvCategory = view.findViewById(R.id.rv_category_books)
+        rvNewest = view.findViewById(R.id.rv_new_books)
+
+        rvCategory.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        rvNewest.layoutManager = GridLayoutManager(requireContext(), 3)
+
+        categoryAdapter = BookAdapter(categoryList) { openDetail(it) }
+        newestAdapter = BookAdapter(newestList) { openDetail(it) }
+
+        rvCategory.adapter = categoryAdapter
+        rvNewest.adapter = newestAdapter
+
+        // ChipGroup listener (kategori dinamis)
+        val chipGroup = view.findViewById<ChipGroup>(R.id.layout_categories)
+        chipGroup.setOnCheckedChangeListener { group, checkedId ->
+            if (checkedId != -1) {
+                val chip = group.findViewById<Chip>(checkedId)
+                val category = chip.text.toString().lowercase()
+                fetchBooks(category = category)
             }
-
-            // navigasi via Navigation Component
-            requireView().findNavController()
-                .navigate(R.id.action_homeFragment_to_bookDetailFragment, bundle)
         }
 
+        // Explore All button
+        view.findViewById<Button>(R.id.btn_explore).setOnClickListener {
+            fetchBooks(category = "fiction")
+        }
 
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
-        recyclerView.adapter = adapter
+        // Load default data
+        fetchBooks(category = "romance") // default
+        fetchBooks(isNewest = true)
     }
+
+    private fun openDetail(selectedBook: Book) {
+        val bundle = Bundle().apply {
+            putString("title", selectedBook.title)
+            putString("category", selectedBook.category)
+            putString("image", selectedBook.imageUrl)
+        }
+        requireView().findNavController()
+            .navigate(R.id.action_homeFragment_to_bookDetailFragment, bundle)
+    }
+
+    private fun fetchBooks(category: String? = null, isNewest: Boolean = false) {
+        val query = when {
+            isNewest -> "fiction"
+            category != null -> "subject:$category"
+            else -> "fiction"
+        }
+
+        RetrofitClient.instance.searchBooks(query).enqueue(object : Callback<BookResponse> {
+            override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
+                if (response.isSuccessful) {
+                    val items = response.body()?.items
+                    val list = if (isNewest) newestList else categoryList
+                    val adapter = if (isNewest) newestAdapter else categoryAdapter
+
+                    list.clear()
+                    items?.forEach { item ->
+                        val title = item.volumeInfo.title ?: "Unknown Title"
+                        val categoryName = item.volumeInfo.categories?.firstOrNull() ?: "Unknown"
+                        val imageUrl = item.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://") ?: ""
+                        list.add(Book(title, categoryName, imageUrl))
+                    }
+
+                    adapter.notifyDataSetChanged()
+                } else {
+                    Log.e("HomeFragment", "Response failed: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<BookResponse>, t: Throwable) {
+                Log.e("HomeFragment", "Error fetching books: ${t.message}")
+            }
+        })
+    }
+
 }
