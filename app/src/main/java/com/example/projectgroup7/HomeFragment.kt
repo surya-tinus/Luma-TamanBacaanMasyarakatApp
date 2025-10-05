@@ -71,9 +71,12 @@ class HomeFragment : Fragment() {
         }
 
         // Explore All button
+        // Explore All button -> navigasi ke ExploreFragment
         view.findViewById<Button>(R.id.btn_explore).setOnClickListener {
-            fetchBooks(category = "fiction")
+            requireView().findNavController()
+                .navigate(R.id.action_homeFragment_to_exploreFragment)
         }
+
 
         // Load default data
         fetchBooks(category = "romance") // default

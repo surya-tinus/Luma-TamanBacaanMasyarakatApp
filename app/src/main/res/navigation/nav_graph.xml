@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
@@ -13,6 +14,10 @@
         <action
             android:id="@+id/action_homeFragment_to_bookDetailFragment"
             app:destination="@id/bookDetailFragment" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_exploreFragment"
+            app:destination="@id/exploreFragment" />
     </fragment>
 
     <fragment
@@ -28,11 +33,24 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.projectgroup7.ProfileFragment"
-        android:label="Profile"/>
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile"/>
 
     <fragment
         android:id="@+id/bookDetailFragment"
         android:name="com.example.projectgroup7.BookDetailFragment"
-        android:label="Book Detail" />
+        android:label="Book Detail"
+        tools:layout="@layout/fragment_book_detail" />
+
+    <fragment
+        android:id="@+id/exploreFragment"
+        android:name="com.example.projectgroup7.ExploreFragment"
+        android:label="Explore"
+        tools:layout="@layout/fragment_explore">
+
+        <action
+            android:id="@+id/action_exploreFragment_to_bookDetailFragment"
+            app:destination="@id/bookDetailFragment" />
+    </fragment>
 
 </navigation>
