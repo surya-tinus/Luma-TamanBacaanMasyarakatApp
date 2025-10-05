@@ -18,6 +18,7 @@ class BookAdapter(
     inner class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView = itemView.findViewById<ImageView>(R.id.iv_book_cover)
         val titleView = itemView.findViewById<TextView>(R.id.tv_book_title)
+        val categoryView: TextView = itemView.findViewById(R.id.tv_book_category)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
@@ -29,6 +30,7 @@ class BookAdapter(
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
         val book = bookList[position]
         holder.titleView.text = book.title
+        holder.categoryView.text = book.category
         Glide.with(holder.itemView.context).load(book.imageUrl).into(holder.imageView)
 
         holder.itemView.setOnClickListener {

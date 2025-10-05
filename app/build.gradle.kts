@@ -50,6 +50,8 @@ dependencies {
     implementation ("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.12.0")
+//    kapt ("com.github.bumptech.glide:compiler:4.16.0")
 
 }

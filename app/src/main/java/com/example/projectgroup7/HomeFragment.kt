@@ -2,12 +2,12 @@ package com.example.projectgroup7
 
 import android.os.Bundle
 import android.util.Log
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,7 +47,6 @@ class HomeFragment : Fragment() {
             else -> "Good Night,"
         }
 
-        // Recycler setup
         rvCategory = view.findViewById(R.id.rv_category_books)
         rvNewest = view.findViewById(R.id.rv_new_books)
 
@@ -70,9 +69,10 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Explore All button
+        // Explore All button -> navigasi ke ExploreFragment
         view.findViewById<Button>(R.id.btn_explore).setOnClickListener {
-            fetchBooks(category = "fiction")
+            requireView().findNavController()
+                .navigate(R.id.action_homeFragment_to_exploreFragment)
         }
 
         // Load default data
@@ -123,5 +123,4 @@ class HomeFragment : Fragment() {
             }
         })
     }
-
 }
