@@ -10,7 +10,6 @@
         android:name="com.example.projectgroup7.HomeFragment"
         android:label="Home">
 
-        <!-- tambahkan action ini di dalam fragment home -->
         <action
             android:id="@+id/action_homeFragment_to_bookDetailFragment"
             app:destination="@id/bookDetailFragment" />
@@ -23,24 +22,56 @@
     <fragment
         android:id="@+id/borrowedFragment"
         android:name="com.example.projectgroup7.network.BorrowedFragment"
-        android:label="Borrowed"/>
+        android:label="Borrowed"
+        tools:layout="@layout/fragment_borrowed" />
 
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.example.projectgroup7.SearchFragment"
-        android:label="Search"/>
+        android:label="Search"
+        tools:layout="@layout/fragment_search">
+
+        <action
+            android:id="@+id/action_searchFragment_to_bookDetailFragment"
+            app:destination="@id/bookDetailFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.projectgroup7.ProfileFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_profile"/>
+        tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/bookDetailFragment"
         android:name="com.example.projectgroup7.BookDetailFragment"
         android:label="Book Detail"
-        tools:layout="@layout/fragment_book_detail" />
+        tools:layout="@layout/fragment_book_detail">
+
+        <!-- ✅ Argument harus di dalam fragment ini -->
+        <argument
+            android:name="title"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="category"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="imageUrl"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="description"
+            app:argType="string"
+            app:nullable="true" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_bookDetailFragment"
+            app:destination="@id/bookDetailFragment" />
+
+
+    </fragment>
 
     <fragment
         android:id="@+id/exploreFragment"
