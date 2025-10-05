@@ -2,12 +2,13 @@ package com.example.projectgroup7
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,10 @@ import com.google.android.material.chip.ChipGroup
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Calendar
+import kotlin.collections.isNotEmpty
+
+
 
 class HomeFragment : Fragment() {
 
@@ -39,7 +44,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val greetingTextView = view.findViewById<TextView>(R.id.tv_greeting)
-        val currentHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         greetingTextView.text = when (currentHour) {
             in 5..11 -> "Good Morning,"
             in 12..16 -> "Good Afternoon,"
@@ -47,10 +52,12 @@ class HomeFragment : Fragment() {
             else -> "Good Night,"
         }
 
+        // Recycler setup
         rvCategory = view.findViewById(R.id.rv_category_books)
         rvNewest = view.findViewById(R.id.rv_new_books)
 
         rvCategory.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
         rvNewest.layoutManager = GridLayoutManager(requireContext(), 3)
 
         categoryAdapter = BookAdapter(categoryList) { openDetail(it) }
@@ -61,43 +68,49 @@ class HomeFragment : Fragment() {
 
         // ChipGroup listener (kategori dinamis)
         val chipGroup = view.findViewById<ChipGroup>(R.id.layout_categories)
-        chipGroup.setOnCheckedChangeListener { group, checkedId ->
-            if (checkedId != -1) {
+
+        chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                val checkedId = checkedIds.first()
                 val chip = group.findViewById<Chip>(checkedId)
-                val category = chip.text.toString().lowercase()
-                fetchBooks(category = category)
+                chip?.let {
+                    val category = it.text.toString().lowercase()
+                    fetchBooks(category = category)
+                }
             }
         }
 
-        // Explore All button -> navigasi ke ExploreFragment
+        // Explore All button
         view.findViewById<Button>(R.id.btn_explore).setOnClickListener {
             requireView().findNavController()
                 .navigate(R.id.action_homeFragment_to_exploreFragment)
         }
 
         // Load default data
-        fetchBooks(category = "romance") // default
+        fetchBooks(category = "romance")
         fetchBooks(isNewest = true)
     }
 
     private fun openDetail(selectedBook: Book) {
-        val bundle = Bundle().apply {
-            putString("title", selectedBook.title)
-            putString("category", selectedBook.category)
-            putString("image", selectedBook.imageUrl)
-        }
+        val bundle = bundleOf(
+            "title" to selectedBook.title,
+            "category" to selectedBook.category,
+            "imageUrl" to selectedBook.imageUrl,
+            "description" to selectedBook.description
+        )
         requireView().findNavController()
             .navigate(R.id.action_homeFragment_to_bookDetailFragment, bundle)
     }
 
     private fun fetchBooks(category: String? = null, isNewest: Boolean = false) {
         val query = when {
-            isNewest -> "fiction"
             category != null -> "subject:$category"
             else -> "fiction"
         }
 
-        RetrofitClient.instance.searchBooks(query).enqueue(object : Callback<BookResponse> {
+        val orderBy = if (isNewest) "newest" else null
+
+        RetrofitClient.instance.searchBooks(query, orderBy).enqueue(object : Callback<BookResponse> {
             override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
                 if (response.isSuccessful) {
                     val items = response.body()?.items
@@ -106,10 +119,14 @@ class HomeFragment : Fragment() {
 
                     list.clear()
                     items?.forEach { item ->
-                        val title = item.volumeInfo.title ?: "Unknown Title"
-                        val categoryName = item.volumeInfo.categories?.firstOrNull() ?: "Unknown"
-                        val imageUrl = item.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://") ?: ""
-                        list.add(Book(title, categoryName, imageUrl))
+                        val volumeInfo = item.volumeInfo
+
+                        val title = volumeInfo.title ?: "Unknown Title"
+                        val categoryName = volumeInfo.categories?.firstOrNull() ?: "Unknown"
+                        val imageUrl = volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
+                        val description = volumeInfo.description ?: "Tidak ada deskripsi."
+
+                        list.add(Book(title, categoryName, imageUrl, description))
                     }
 
                     adapter.notifyDataSetChanged()
@@ -123,4 +140,6 @@ class HomeFragment : Fragment() {
             }
         })
     }
+
+
 }

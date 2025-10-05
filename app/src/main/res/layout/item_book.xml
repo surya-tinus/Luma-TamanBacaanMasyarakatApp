@@ -13,14 +13,13 @@
 
         <ImageView
             android:id="@+id/iv_book_cover"
-            android:layout_width="110dp"
+            android:layout_width="wrap_content"
             android:layout_height="160dp"
-            android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
             android:layout_gravity="center"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="4dp"
-            />
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop" />
 
     </FrameLayout>
 

@@ -70,7 +70,7 @@ class ExploreFragment : Fragment() {
                         val imageUrl = item.volumeInfo.imageLinks?.thumbnail
                             ?.replace("http://", "https://") ?: ""
 
-                        bookList.add(Book(title, categoryName, imageUrl))
+                        bookList.add(Book(title, categoryName, imageUrl, ""))
                     }
                     adapter.notifyDataSetChanged()
                 } else {
