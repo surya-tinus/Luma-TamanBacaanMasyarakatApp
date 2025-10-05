@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.projectgroup7.HomeFragment"
-        android:label="Home">
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
 
-        <!-- tambahkan action ini di dalam fragment home -->
         <action
             android:id="@+id/action_homeFragment_to_bookDetailFragment"
             app:destination="@id/bookDetailFragment" />
@@ -18,21 +19,52 @@
     <fragment
         android:id="@+id/borrowedFragment"
         android:name="com.example.projectgroup7.BorrowedFragment"
-        android:label="Borrowed"/>
+        android:label="Borrowed"
+        tools:layout="@layout/fragment_borrowed"/>
 
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.example.projectgroup7.SearchFragment"
-        android:label="Search"/>
+        android:label="Search"
+        tools:layout="@layout/fragment_search">
+
+        <!-- Action untuk navigasi dari Search ke Detail -->
+        <action
+            android:id="@+id/action_searchFragment_to_bookDetailFragment"
+            app:destination="@id/bookDetailFragment" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.projectgroup7.ProfileFragment"
-        android:label="Profile"/>
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile"/>
 
     <fragment
         android:id="@+id/bookDetailFragment"
         android:name="com.example.projectgroup7.BookDetailFragment"
-        android:label="Book Detail" />
+        android:label="Book Detail"
+        tools:layout="@layout/fragment_book_detail" >
+
+        <!-- Mendefinisikan semua data yang akan diterima oleh fragment ini -->
+        <argument
+            android:name="title"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="category"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="imageUrl"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="description"
+            app:argType="string"
+            app:nullable="true" />
+
+    </fragment>
 
 </navigation>

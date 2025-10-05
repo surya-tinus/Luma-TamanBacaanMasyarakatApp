@@ -11,7 +11,8 @@ data class BookItem(
 data class VolumeInfo(
     val title: String?,
     val categories: List<String>?,
-    val imageLinks: ImageLinks?
+    val imageLinks: ImageLinks?,
+    val description: String? // <-- Properti ini ditambahkan
 )
 
 data class ImageLinks(

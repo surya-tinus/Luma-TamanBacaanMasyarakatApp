@@ -1,59 +1,131 @@
 package com.example.projectgroup7
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+// ======================================================
+// PERBAIKAN 1: Pastikan menggunakan 'android.widget.SearchView'
+// ======================================================
+import android.widget.SearchView
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.projectgroup7.model.Book
+import com.example.projectgroup7.model.BookResponse
+import com.example.projectgroup7.network.RetrofitClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SearchFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SearchFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var searchView: SearchView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var bookAdapter: BookAdapter
+    private var bookList = mutableListOf<Book>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_search, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SearchFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SearchFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        searchView = view.findViewById(R.id.searchView)
+        recyclerView = view.findViewById(R.id.recyclerViewBooks)
+        progressBar = view.findViewById(R.id.progressBar)
+
+        setupRecyclerView()
+        setupSearchView()
+    }
+
+    private fun setupRecyclerView() {
+        bookAdapter = BookAdapter(bookList) { selectedBook ->
+            val bundle = bundleOf(
+                "title" to selectedBook.title,
+                "category" to selectedBook.category,
+                "imageUrl" to selectedBook.imageUrl,
+                "description" to selectedBook.description
+            )
+            findNavController().navigate(R.id.action_searchFragment_to_bookDetailFragment, bundle)
+        }
+        recyclerView.adapter = bookAdapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+    }
+
+    private fun setupSearchView() {
+        // ======================================================
+        // PERBAIKAN 2: Konfigurasi tambahan untuk memastikan SearchView aktif
+        // ======================================================
+        // Mengatur agar search view tidak dalam mode ikon (langsung berupa kolom teks)
+        searchView.isIconified = false
+        // Secara opsional, bisa juga langsung membuka keyboard saat fragmen dibuka
+        // searchView.requestFocus()
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            // Metode ini dipanggil saat user menekan tombol 'search' di keyboard
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrBlank()) {
+                    searchBooks(query)
+                    // Menutup keyboard agar tidak mengganggu tampilan hasil
+                    searchView.clearFocus()
+                }
+                return true // Mengindikasikan bahwa event sudah ditangani
+            }
+
+            // Metode ini dipanggil setiap kali teks di search view berubah
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Jika Anda ingin hasil pencarian muncul saat mengetik,
+                // Anda bisa memanggil searchBooks() di sini.
+                // Untuk sekarang, kita biarkan false.
+                return false
+            }
+        })
+    }
+
+    private fun searchBooks(query: String) {
+        showLoading(true)
+
+        RetrofitClient.instance.searchBooks(query).enqueue(object : Callback<BookResponse> {
+            override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
+                showLoading(false)
+                if (response.isSuccessful) {
+                    bookList.clear()
+
+                    val itemsFromApi = response.body()?.items ?: emptyList()
+                    val mappedBooks = itemsFromApi.map { bookItem ->
+                        val volumeInfo = bookItem.volumeInfo
+                        Book(
+                            title = volumeInfo.title,
+                            category = volumeInfo.categories?.firstOrNull() ?: "Tidak Berkategori",
+                            imageUrl = volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
+                            description = volumeInfo.description ?: "Tidak ada deskripsi."
+                        )
+                    }
+                    bookList.addAll(mappedBooks)
+                    bookAdapter.notifyDataSetChanged()
+                } else {
+                    Log.e("SearchFragment", "API Error: ${response.code()} - ${response.message()}")
                 }
             }
+
+            override fun onFailure(call: Call<BookResponse>, t: Throwable) {
+                showLoading(false)
+                Log.e("SearchFragment", "Network Failure: ${t.message}", t)
+            }
+        })
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }
