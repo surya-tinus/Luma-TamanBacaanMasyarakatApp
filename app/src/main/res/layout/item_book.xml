@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -25,7 +24,6 @@
 
     </FrameLayout>
 
-    <!-- Judul Buku -->
     <TextView
         android:id="@+id/tv_book_title"
         android:layout_width="match_parent"
@@ -38,7 +36,6 @@
         android:ellipsize="end"
         android:textSize="14sp" />
 
-    <!-- Kategori Buku -->
     <TextView
         android:id="@+id/tv_book_category"
         android:layout_width="match_parent"
@@ -50,5 +47,17 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/tvRemainingTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="3 days left" />
+
+    <TextView
+        android:id="@+id/tv_book_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Author Name" />
 
 </LinearLayout>

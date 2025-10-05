@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/borrowedFragment"
-        android:name="com.example.projectgroup7.BorrowedFragment"
+        android:name="com.example.projectgroup7.network.BorrowedFragment"
         android:label="Borrowed"/>
 
     <fragment
