@@ -1,59 +1,80 @@
-package com.example.projectgroup7
+package com.example.projectgroup7.network
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.projectgroup7.databinding.FragmentBorrowedBinding
+import com.example.projectgroup7.model.BorrowedBook
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [BorrowedFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class BorrowedFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentBorrowedBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var adapter: BorrowedBookAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_borrowed, container, false)
+    ): View {
+        _binding = FragmentBorrowedBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment BorrowedFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            BorrowedFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.rvBorrowedBooks.layoutManager = LinearLayoutManager(requireContext())
+
+        // DUMMY data — replace with API / DB later
+        val borrowedBooks = listOf(
+            BorrowedBook(
+                bookId = 1,
+                title = "The Pragmatic Programmer",
+                author = "Andrew Hunt",
+                borrowDate = "2025-10-01",
+                returnDate = null,
+                status = "borrowed",
+                remainingTime = 3 * 24 * 60 * 60 * 1000L
+            ),
+            BorrowedBook(
+                bookId = 2,
+                title = "Clean Code",
+                author = "Robert C. Martin",
+                borrowDate = "2025-09-29",
+                returnDate = null,
+                status = "borrowed",
+                remainingTime = 1 * 24 * 60 * 60 * 1000L
+            ),
+            BorrowedBook(
+                bookId = 3,
+                title = "Design Patterns",
+                author = "Erich Gamma",
+                borrowDate = "2025-09-20",
+                returnDate = "2025-09-27",
+                status = "returned",
+                remainingTime = 0L
+            ),
+            BorrowedBook(
+                bookId = 4,
+                title = "Effective Java",
+                author = "Joshua Bloch",
+                borrowDate = "2025-09-15",
+                returnDate = "2025-09-25",
+                status = "returned",
+                remainingTime = 0L
+            )
+        )
+
+        adapter = BorrowedBookAdapter(borrowedBooks)
+        binding.rvBorrowedBooks.adapter = adapter
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

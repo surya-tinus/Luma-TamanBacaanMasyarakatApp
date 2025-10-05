@@ -47,4 +47,17 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/tvRemainingTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="3 days left" />
+
+    <TextView
+        android:id="@+id/tv_book_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Author Name" />
+
 </LinearLayout>
