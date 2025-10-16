@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Tempat fragment tampil -->
+    <!-- Container utama untuk fragment -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -14,6 +14,13 @@
         app:defaultNavHost="true"
         app:navGraph="@navigation/nav_graph" />
 
+    <!-- Container tambahan opsional (bisa dipakai untuk pop-up fragment seperti edit profile) -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -21,4 +28,5 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
         app:menu="@navigation/bottom_nav_menu" />
+
 </LinearLayout>

@@ -69,7 +69,7 @@
                 android:id="@+id/tvUserPhone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="+62 812-3456-7890"
+                android:text="0812-3456-7890"
                 android:layout_marginBottom="16dp" />
 
             <TextView
