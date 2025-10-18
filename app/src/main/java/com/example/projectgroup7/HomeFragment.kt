@@ -23,6 +23,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.Calendar
 import kotlin.collections.isNotEmpty
+import android.content.Context
+import androidx.recyclerview.widget.LinearSnapHelper
+import androidx.recyclerview.widget.PagerSnapHelper
 
 
 
@@ -44,51 +47,61 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val greetingTextView = view.findViewById<TextView>(R.id.tv_greeting)
-        val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        greetingTextView.text = when (currentHour) {
-            in 5..11 -> "Good Morning,"
-            in 12..16 -> "Good Afternoon,"
-            in 17..20 -> "Good Evening,"
-            else -> "Good Night,"
-        }
+        val usernameGreeting = view.findViewById<TextView>(R.id.username_greeting)
+        val sharedPref = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val username = sharedPref.getString("username", "User123456")
 
-        // Recycler setup
+        greetingTextView.text = getGreeting()
+        usernameGreeting.text = username
+
+        // --- RecyclerView setup ---
+
+        // Category RecyclerView (horizontal) dengan snap per item
         rvCategory = view.findViewById(R.id.rv_category_books)
-        rvNewest = view.findViewById(R.id.rv_new_books)
-
         rvCategory.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
-        rvNewest.layoutManager = GridLayoutManager(requireContext(), 3)
-
+        val categorySnap = LinearSnapHelper() // SnapHelper bikin scroll nyantol per item
+        categorySnap.attachToRecyclerView(rvCategory)
         categoryAdapter = BookAdapter(categoryList) { openDetail(it) }
-        newestAdapter = BookAdapter(newestList) { openDetail(it) }
-
         rvCategory.adapter = categoryAdapter
+
+        // Newest RecyclerView (grid) height wrap_content + scroll dikontrol parent ScrollView
+        rvNewest = view.findViewById(R.id.rv_new_books)
+        rvNewest.layoutManager = object : GridLayoutManager(requireContext(), 3) {
+
+        }
+        newestAdapter = BookAdapter(newestList) { openDetail(it) }
         rvNewest.adapter = newestAdapter
 
         // ChipGroup listener (kategori dinamis)
         val chipGroup = view.findViewById<ChipGroup>(R.id.layout_categories)
-
         chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isNotEmpty()) {
-                val checkedId = checkedIds.first()
-                val chip = group.findViewById<Chip>(checkedId)
+                val chip = group.findViewById<Chip>(checkedIds.first())
                 chip?.let {
-                    val category = it.text.toString().lowercase()
-                    fetchBooks(category = category)
+                    fetchBooks(category = it.text.toString().lowercase())
                 }
             }
         }
 
-        // Explore All button
+        // Explore button
         view.findViewById<Button>(R.id.btn_explore).setOnClickListener {
             requireView().findNavController()
                 .navigate(R.id.action_homeFragment_to_exploreFragment)
         }
 
-        // Load default data
+        // Load default
         fetchBooks(category = "romance")
         fetchBooks(isNewest = true)
+    }
+
+    private fun getGreeting(): String {
+        val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        return when (currentHour) {
+            in 5..11 -> "Good Morning,"
+            in 12..16 -> "Good Afternoon,"
+            in 17..20 -> "Good Evening,"
+            else -> "Good Night,"
+        }
     }
 
     private fun openDetail(selectedBook: Book) {
@@ -103,11 +116,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun fetchBooks(category: String? = null, isNewest: Boolean = false) {
-        val query = when {
-            category != null -> "subject:$category"
-            else -> "fiction"
-        }
-
+        val query = category?.let { "subject:$it" } ?: "fiction"
         val orderBy = if (isNewest) "newest" else null
 
         RetrofitClient.instance.searchBooks(query, orderBy).enqueue(object : Callback<BookResponse> {
@@ -119,20 +128,15 @@ class HomeFragment : Fragment() {
 
                     list.clear()
                     items?.forEach { item ->
-                        val volumeInfo = item.volumeInfo
-
-                        val title = volumeInfo.title ?: "Unknown Title"
-                        val categoryName = volumeInfo.categories?.firstOrNull() ?: "Unknown"
-                        val imageUrl = volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
-                        val description = volumeInfo.description ?: "Tidak ada deskripsi."
-
-                        list.add(Book(title, categoryName, imageUrl, description))
+                        val vol = item.volumeInfo
+                        val title = vol.title ?: "Unknown Title"
+                        val cat = vol.categories?.firstOrNull() ?: "Unknown"
+                        val img = vol.imageLinks?.thumbnail?.replace("http://", "https://")
+                        val desc = vol.description ?: "Tidak ada deskripsi."
+                        list.add(Book(title, cat, img, desc))
                     }
-
                     adapter.notifyDataSetChanged()
-                } else {
-                    Log.e("HomeFragment", "Response failed: ${response.code()}")
-                }
+                } else Log.e("HomeFragment", "Response failed: ${response.code()}")
             }
 
             override fun onFailure(call: Call<BookResponse>, t: Throwable) {
@@ -140,6 +144,5 @@ class HomeFragment : Fragment() {
             }
         })
     }
-
-
 }
+

@@ -1,37 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F2F2F2"
     android:fillViewport="true"
-    android:background="@android:color/background_light">
+    tools:context=".BorrowedFragment">
 
     <LinearLayout
-        android:id="@+id/fragmentBorrowedRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="56dp"
-        android:paddingBottom="16dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvBorrowedTitle"
+        <!-- Header Section -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Borrowed Books"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:padding="8dp"
-            android:textColor="@android:color/black" />
+            android:layout_height="180dp"
+            android:orientation="horizontal"
+            android:paddingTop="32dp"
+            android:paddingBottom="30dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_greeting_rounded"
+            android:elevation="2dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvBorrowedBooks"
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:id="@+id/tvBorrowedTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Borrowed Books"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvBorrowedSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="Books you've currently borrowed"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="#6BBF59"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Borrowed Books Section -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:paddingTop="8dp" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="-40dp"
+            android:background="@drawable/bg_section"
+            android:elevation="3dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="48dp"
+            android:paddingBottom="100dp">
 
+            <TextView
+                android:id="@+id/tvBorrowedListLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Your Borrowed List"
+                android:textColor="#233d18"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvBorrowedBooks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false" />
+
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

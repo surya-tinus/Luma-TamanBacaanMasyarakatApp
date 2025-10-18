@@ -1,6 +1,7 @@
 package com.example.projectgroup7
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -11,12 +12,6 @@ import androidx.navigation.fragment.findNavController
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
-    private var userName = "User123456"
-    private var userEmail = "user123456@example.com"
-    private var userPhone = "081234567890"
-    private var userAddress = "Scientia Boulevard Gading, Curug Sangereng"
-    private var userBirthdate = "29 May 2000"
-
     private lateinit var tvName: TextView
     private lateinit var tvEmail: TextView
     private lateinit var tvPhone: TextView
@@ -25,8 +20,12 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private lateinit var btnEdit: Button
     private lateinit var btnLogout: Button
 
+    private lateinit var sharedPref: android.content.SharedPreferences
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        sharedPref = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
 
         tvName = view.findViewById(R.id.tvUserName)
         tvEmail = view.findViewById(R.id.tvUserEmail)
@@ -38,28 +37,27 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         showProfileData()
 
-        // Navigasi ke EditProfileFragment
         btnEdit.setOnClickListener {
             val bundle = Bundle().apply {
-                putString("name", userName)
-                putString("email", userEmail)
-                putString("phone", userPhone)
-                putString("birthdate", userBirthdate)
+                putString("name", sharedPref.getString("username", "User"))
+                putString("email", sharedPref.getString("username", "User") + "@example.com")
+                putString("phone", sharedPref.getString("phone", ""))
+                putString("birthdate", sharedPref.getString("birthdate", ""))
             }
             findNavController().navigate(R.id.editProfileFragment, bundle)
         }
 
-        // Tombol Logout dengan dialog konfirmasi
         btnLogout.setOnClickListener {
             showLogoutConfirmation()
         }
 
-        // Ambil data hasil edit profil
         parentFragmentManager.setFragmentResultListener("profile_update", viewLifecycleOwner) { _, bundle ->
-            userName = bundle.getString("name") ?: userName
-            userEmail = bundle.getString("email") ?: userEmail
-            userPhone = bundle.getString("phone") ?: userPhone
-            userBirthdate = bundle.getString("birthdate") ?: userBirthdate
+            with(sharedPref.edit()) {
+                putString("username", bundle.getString("name"))
+                putString("phone", bundle.getString("phone"))
+                putString("birthdate", bundle.getString("birthdate"))
+                apply()
+            }
             showProfileData()
         }
     }
@@ -78,9 +76,15 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun showProfileData() {
+        val userName = sharedPref.getString("username", "User123456")
+        val userEmail = "$userName@example.com"
+        val userPhone = sharedPref.getString("phone", "081234567890")
+        val userAddress = sharedPref.getString("address", "Scientia Boulevard Gading, Curug Sangereng")
+        val userBirthdate = sharedPref.getString("birthdate", "29 May 2000")
+
         tvName.text = userName
         tvEmail.text = userEmail
-        tvPhone.text = formatPhoneNumber(userPhone)
+        tvPhone.text = formatPhoneNumber(userPhone ?: "")
         tvAddress.text = userAddress
         tvBirthdate.text = userBirthdate
     }

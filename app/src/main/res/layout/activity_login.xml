@@ -6,19 +6,37 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center"
-    tools:context=".LoginActivity">
+    tools:context=".LoginActivity"
+    android:background="#fff9f9">
+
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:src="@drawable/logo_alt"
+        android:contentDescription="@string/app_name" />
 
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Taman Bacaan Login"
+        android:text="Welcome to Luma!"
         android:textSize="22sp"
         android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please sign in to coninue"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="15sp"
         android:layout_marginBottom="32dp" />
 
     <EditText
         android:id="@+id/username"
+        android:fontFamily="@font/poppins_regular"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Username"
@@ -26,6 +44,7 @@
 
     <EditText
         android:id="@+id/password"
+        android:fontFamily="@font/poppins_regular"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Password"
@@ -34,19 +53,21 @@
 
     <Button
         android:id="@+id/login"
+        android:fontFamily="@font/poppins_regular"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Login"
-        android:backgroundTint="#CDEB8B"
-        android:textColor="@color/black"
+        android:backgroundTint="#677e5d"
+        android:textColor="@color/white"
         android:layout_marginTop="24dp" />
 
     <Button
         android:id="@+id/btnSignup"
+        android:fontFamily="@font/poppins_regular"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sign Up"
-        android:backgroundTint="@android:color/holo_blue_light"
+        android:backgroundTint="#99daff"
         android:textColor="@color/white"
         android:layout_marginTop="12dp" />
 

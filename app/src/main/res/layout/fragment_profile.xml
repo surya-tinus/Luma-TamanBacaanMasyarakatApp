@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#fff9f9"
     android:padding="24dp">
 
     <LinearLayout
@@ -22,7 +22,7 @@
             android:src="@drawable/ic_user"
             android:background="@drawable/bg_circle"
             android:padding="16dp"
-            app:tint="@color/black" />
+            app:tint="#233d18" />
 
         <!-- Nama -->
         <TextView
@@ -33,7 +33,7 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginTop="12dp"
-            android:textColor="@color/black" />
+            android:textColor="#233d18" />
 
         <!-- Info Card -->
         <LinearLayout
@@ -49,13 +49,13 @@
                 android:layout_height="wrap_content"
                 android:text="Email"
                 android:textStyle="bold"
-                android:textColor="@color/black" />
+                android:textColor="#233d18" />
 
             <TextView
                 android:id="@+id/tvUserEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="user123456@example.com"
+                android:text=""
                 android:layout_marginBottom="16dp" />
 
             <TextView
@@ -63,13 +63,13 @@
                 android:layout_height="wrap_content"
                 android:text="Phone"
                 android:textStyle="bold"
-                android:textColor="@color/black" />
+                android:textColor="#233d18" />
 
             <TextView
                 android:id="@+id/tvUserPhone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0812-3456-7890"
+                android:text=""
                 android:layout_marginBottom="16dp" />
 
             <TextView
@@ -77,13 +77,13 @@
                 android:layout_height="wrap_content"
                 android:text="Address"
                 android:textStyle="bold"
-                android:textColor="@color/black" />
+                android:textColor="#233d18" />
 
             <TextView
                 android:id="@+id/tvUserAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Scientia Boulevard Gading, Curug Sangereng"
+                android:text=""
                 android:layout_marginBottom="16dp" />
 
             <TextView
@@ -91,13 +91,13 @@
                 android:layout_height="wrap_content"
                 android:text="Birthdate"
                 android:textStyle="bold"
-                android:textColor="@color/black" />
+                android:textColor="#233d18" />
 
             <TextView
                 android:id="@+id/tvUserBirthdate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="29 May 2000" />
+                android:text="" />
         </LinearLayout>
 
         <!-- Tombol Edit Profile (dummy untuk sekarang) -->
@@ -107,8 +107,8 @@
             android:layout_height="wrap_content"
             android:text="Edit Profile"
             android:layout_marginTop="24dp"
-            android:backgroundTint="#CDEB8B"
-            android:textColor="@color/black"
+            android:backgroundTint="#677e5d"
+            android:textColor="@color/white"
             android:drawableStart="@drawable/ic_edit"
             android:drawablePadding="8dp"/>
 
@@ -119,7 +119,7 @@
             android:layout_height="wrap_content"
             android:text="Logout"
             android:layout_marginTop="12dp"
-            android:backgroundTint="@android:color/holo_red_light"
+            android:backgroundTint="#ff5757"
             android:textColor="@color/white"
             android:drawableStart="@drawable/ic_back"
             android:drawablePadding="8dp" />
