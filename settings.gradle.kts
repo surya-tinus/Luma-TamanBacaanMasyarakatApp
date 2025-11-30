@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Project Group 7"
+rootProject.name = "Luma"
 include(":app")
  

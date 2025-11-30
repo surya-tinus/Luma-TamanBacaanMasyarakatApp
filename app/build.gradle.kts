@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.projectgroup7"
+    namespace = "com.example.luma"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.projectgroup7"
+        applicationId = "com.example.luma"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -53,6 +53,8 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

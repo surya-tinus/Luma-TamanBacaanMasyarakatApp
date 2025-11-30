@@ -7,7 +7,7 @@
     <!-- Manage Books -->
     <fragment
         android:id="@+id/booksFragment"
-        android:name="com.example.projectgroup7.ManageBooksFragment"
+        android:name="com.example.luma.ManageBooksFragment"
         android:label="Books"
         tools:layout="@layout/fragment_manage_books">
 
@@ -20,7 +20,7 @@
     <!-- Members -->
     <fragment
         android:id="@+id/membersFragment"
-        android:name="com.example.projectgroup7.MembersFragment"
+        android:name="com.example.luma.MembersFragment"
         android:label="Members"
         tools:layout="@layout/fragment_members">
         <action
@@ -31,28 +31,28 @@
     <!-- Member Detail -->
     <fragment
         android:id="@+id/memberDetailFragment"
-        android:name="com.example.projectgroup7.MemberDetailFragment"
+        android:name="com.example.luma.MemberDetailFragment"
         android:label="Member Detail"
         tools:layout="@layout/fragment_member_detail" />
 
     <!-- Profile Admin -->
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.projectgroup7.AdminProfileFragment"
+        android:name="com.example.luma.AdminProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_admin_profile" />
 
     <!-- Add Book -->
     <fragment
         android:id="@+id/addBookFragment"
-        android:name="com.example.projectgroup7.AddBookFragment"
+        android:name="com.example.luma.AddBookFragment"
         android:label="Add Book"
         tools:layout="@layout/fragment_add_book" />
 
     <!-- Book Detail (reuse user detail view) -->
     <fragment
         android:id="@+id/bookDetailFragment"
-        android:name="com.example.projectgroup7.BookDetailFragment"
+        android:name="com.example.luma.BookDetailFragment"
         android:label="Book Detail"
         tools:layout="@layout/fragment_book_detail" />
 </navigation>

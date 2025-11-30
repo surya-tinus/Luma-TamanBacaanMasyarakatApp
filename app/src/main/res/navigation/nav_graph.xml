@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.projectgroup7.HomeFragment"
+        android:name="com.example.luma.HomeFragment"
         android:label="Home">
 
         <action
@@ -21,13 +21,13 @@
 
     <fragment
         android:id="@+id/borrowedFragment"
-        android:name="com.example.projectgroup7.network.BorrowedFragment"
+        android:name="com.example.luma.network.BorrowedFragment"
         android:label="Borrowed"
         tools:layout="@layout/fragment_borrowed" />
 
     <fragment
         android:id="@+id/searchFragment"
-        android:name="com.example.projectgroup7.SearchFragment"
+        android:name="com.example.luma.SearchFragment"
         android:label="Search"
         tools:layout="@layout/fragment_search">
 
@@ -38,7 +38,7 @@
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.projectgroup7.ProfileFragment"
+        android:name="com.example.luma.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" >
 
@@ -49,13 +49,13 @@
 
     <fragment
         android:id="@+id/editProfileFragment"
-        android:name="com.example.projectgroup7.EditProfileFragment"
+        android:name="com.example.luma.EditProfileFragment"
         android:label="Edit Profile"
         tools:layout="@layout/fragment_edit_profile" />
 
     <fragment
         android:id="@+id/bookDetailFragment"
-        android:name="com.example.projectgroup7.BookDetailFragment"
+        android:name="com.example.luma.BookDetailFragment"
         android:label="Book Detail"
         tools:layout="@layout/fragment_book_detail">
 
@@ -86,7 +86,7 @@
 
     <fragment
         android:id="@+id/exploreFragment"
-        android:name="com.example.projectgroup7.ExploreFragment"
+        android:name="com.example.luma.ExploreFragment"
         android:label="Explore"
         tools:layout="@layout/fragment_explore">
 
