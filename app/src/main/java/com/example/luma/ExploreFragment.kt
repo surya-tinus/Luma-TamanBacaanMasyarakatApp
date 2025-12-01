@@ -1,86 +1,71 @@
 package com.example.luma
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.luma.model.Book
-import com.example.luma.model.BookResponse
-import com.example.luma.network.RetrofitClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.luma.database.Book // 1. Pastikan pakai Book dari Database
+import com.example.luma.database.viewmodels.BookViewModel // 2. Pakai ViewModel
 
 class ExploreFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: BookAdapter
-    private val bookList = mutableListOf<Book>()
-
-    // daftar kategori populer yang akan ditampilkan
-    private val categories = listOf(
-        "fiction", "romance", "biography", "science", "fantasy"
-    )
+    private lateinit var bookViewModel: BookViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_explore, container, false)
+        return inflater.inflate(R.layout.fragment_explore, container, false)
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // 1. Setup RecyclerView
         recyclerView = view.findViewById(R.id.recyclerViewExplore)
+        // Grid 2 kolom biar mirip explore IG
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
-        adapter = BookAdapter(bookList) { openDetail(it) }
+        // Inisialisasi adapter dengan list kosong dulu
+        adapter = BookAdapter(emptyList()) { selectedBook ->
+            openDetail(selectedBook)
+        }
         recyclerView.adapter = adapter
 
-        // Fetch semua kategori
-        categories.forEach { category ->
-            fetchBooks(category)
-        }
+        // 2. Inisialisasi ViewModel
+        bookViewModel = ViewModelProvider(requireActivity())[BookViewModel::class.java]
 
-        return view
+        // 3. Ambil Data dari Database & Acak (Randomize)
+        bookViewModel.allBooks.observe(viewLifecycleOwner) { books ->
+            if (books.isNotEmpty()) {
+                // Konsep Explore: Tampilkan buku secara acak
+                // Kita pakai .shuffled() untuk mengacak urutan list
+                val randomBooks = books.shuffled()
+
+                adapter.updateData(randomBooks)
+            }
+        }
     }
 
     private fun openDetail(selectedBook: Book) {
+        // Nanti diaktifkan saat DetailFragment sudah siap menerima Parcelable
+        Toast.makeText(requireContext(), "Explore: ${selectedBook.title}", Toast.LENGTH_SHORT).show()
+
+        /* // KODE NAVIGASI (Aktifkan nanti):
+        // Kirim object Book utuh karena sudah @Parcelize
         val bundle = Bundle().apply {
-            putString("title", selectedBook.title)
-            putString("category", selectedBook.category)
-            putString("image", selectedBook.imageUrl)
+            putParcelable("DATA_BUKU", selectedBook)
         }
-        requireView().findNavController()
-            .navigate(R.id.action_exploreFragment_to_bookDetailFragment, bundle)
-    }
-
-    private fun fetchBooks(category: String) {
-        val query = "subject:$category"
-
-        RetrofitClient.instance.searchBooks(query).enqueue(object : Callback<BookResponse> {
-            override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
-                if (response.isSuccessful) {
-                    val items = response.body()?.items
-                    items?.forEach { item ->
-                        val title = item.volumeInfo.title ?: "Unknown Title"
-                        val categoryName = item.volumeInfo.categories?.firstOrNull() ?: category
-                        val imageUrl = item.volumeInfo.imageLinks?.thumbnail
-                            ?.replace("http://", "https://") ?: ""
-
-                        bookList.add(Book(title, categoryName, imageUrl, ""))
-                    }
-                    adapter.notifyDataSetChanged()
-                } else {
-                    Log.e("ExploreFragment", "Response failed: ${response.code()}")
-                }
-            }
-
-            override fun onFailure(call: Call<BookResponse>, t: Throwable) {
-                Log.e("ExploreFragment", "Error fetching books: ${t.message}")
-            }
-        })
+        // Pastikan ID action di nav_graph sudah benar:
+        // requireView().findNavController()
+        //    .navigate(R.id.action_exploreFragment_to_bookDetailFragment, bundle)
+        */
     }
 }

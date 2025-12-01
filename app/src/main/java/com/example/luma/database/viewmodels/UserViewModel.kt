@@ -16,7 +16,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: com.example.luma.database.UserDao
 
     init {
-        val userDao = AppDatabase.getDatabase(application).userDao()
+        // TAMBAHKAN viewModelScope sebagai parameter kedua
+        val userDao = AppDatabase.getDatabase(application, viewModelScope).userDao()
         repository = userDao
     }
 

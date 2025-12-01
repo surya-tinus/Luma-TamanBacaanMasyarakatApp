@@ -1,26 +1,20 @@
 package com.example.luma
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-// ======================================================
-// PERBAIKAN 1: Pastikan menggunakan 'android.widget.SearchView'
-// ======================================================
 import android.widget.SearchView
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.luma.model.Book
-import com.example.luma.model.BookResponse
-import com.example.luma.network.RetrofitClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.luma.database.Book // 1. Pakai Book Database
+import com.example.luma.database.viewmodels.BookViewModel // 2. Pakai ViewModel
 
 class SearchFragment : Fragment() {
 
@@ -28,7 +22,10 @@ class SearchFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
     private lateinit var bookAdapter: BookAdapter
-    private var bookList = mutableListOf<Book>()
+    private lateinit var bookViewModel: BookViewModel
+
+    // Menyimpan daftar lengkap buku untuk difilter
+    private var fullBookList = listOf<Book>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,18 +41,38 @@ class SearchFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerViewBooks)
         progressBar = view.findViewById(R.id.progressBar)
 
+        // 1. Setup ViewModel
+        bookViewModel = ViewModelProvider(requireActivity())[BookViewModel::class.java]
+
+        // 2. Setup RecyclerView
         setupRecyclerView()
+
+        // 3. Observasi Data Buku (Ambil semua buku dulu)
+        showLoading(true)
+        bookViewModel.allBooks.observe(viewLifecycleOwner) { books ->
+            showLoading(false)
+            fullBookList = books // Simpan copy lengkapnya
+            // Awalnya kosongkan list, atau tampilkan semua (sesuai selera)
+            // Di sini saya kosongkan dulu sesuai request kamu (kosong kalau ga disearch)
+            bookAdapter.updateData(emptyList())
+        }
+
+        // 4. Setup Search Listener
         setupSearchView()
     }
 
     private fun setupRecyclerView() {
-        bookAdapter = BookAdapter(bookList) { selectedBook ->
+        // Inisialisasi dengan list kosong
+        bookAdapter = BookAdapter(emptyList()) { selectedBook ->
+            // --- NAVIGASI KE DETAIL ---
+            // Sesuaikan key bundle dengan apa yang diterima DetailFragment nanti
             val bundle = bundleOf(
                 "title" to selectedBook.title,
                 "category" to selectedBook.category,
-                "imageUrl" to selectedBook.imageUrl,
-                "description" to selectedBook.description
+                "imagePath" to selectedBook.imagePath, // Dulu imageUrl
+                "synopsis" to selectedBook.synopsis      // Dulu description
             )
+            // Pastikan ID action di nav_graph sudah benar
             findNavController().navigate(R.id.action_searchFragment_to_bookDetailFragment, bundle)
         }
         recyclerView.adapter = bookAdapter
@@ -63,69 +80,50 @@ class SearchFragment : Fragment() {
     }
 
     private fun setupSearchView() {
-        // ======================================================
-        // PERBAIKAN 2: Konfigurasi tambahan untuk memastikan SearchView aktif
-        // ======================================================
-        // Mengatur agar search view tidak dalam mode ikon (langsung berupa kolom teks)
         searchView.isIconified = false
-        // Secara opsional, bisa juga langsung membuka keyboard saat fragmen dibuka
-        // searchView.requestFocus()
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            // Metode ini dipanggil saat user menekan tombol 'search' di keyboard
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrBlank()) {
-                    searchBooks(query)
-                    // Menutup keyboard agar tidak mengganggu tampilan hasil
+                    performSearch(query)
                     searchView.clearFocus()
                 }
-                return true // Mengindikasikan bahwa event sudah ditangani
+                return true
             }
 
-            // Metode ini dipanggil setiap kali teks di search view berubah
             override fun onQueryTextChange(newText: String?): Boolean {
-                // Jika Anda ingin hasil pencarian muncul saat mengetik,
-                // Anda bisa memanggil searchBooks() di sini.
-                // Untuk sekarang, kita biarkan false.
+                // Opsional: Kalau mau "Live Search" (langsung muncul pas ngetik)
+                // Aktifkan baris di bawah ini:
+                // performSearch(newText)
                 return false
             }
         })
     }
 
-    private fun searchBooks(query: String) {
-        showLoading(true)
+    private fun performSearch(query: String?) {
+        val searchText = query?.lowercase() ?: ""
 
-        RetrofitClient.instance.searchBooks(query).enqueue(object : Callback<BookResponse> {
-            override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
-                showLoading(false)
-                if (response.isSuccessful) {
-                    bookList.clear()
+        if (searchText.isEmpty()) {
+            bookAdapter.updateData(emptyList())
+            return
+        }
 
-                    val itemsFromApi = response.body()?.items ?: emptyList()
-                    val mappedBooks = itemsFromApi.map { bookItem ->
-                        val volumeInfo = bookItem.volumeInfo
-                        Book(
-                            title = volumeInfo.title,
-                            category = volumeInfo.categories?.firstOrNull() ?: "Tidak Berkategori",
-                            imageUrl = volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
-                            description = volumeInfo.description ?: "Tidak ada deskripsi."
-                        )
-                    }
-                    bookList.addAll(mappedBooks)
-                    bookAdapter.notifyDataSetChanged()
-                } else {
-                    Log.e("SearchFragment", "API Error: ${response.code()} - ${response.message()}")
-                }
-            }
+        // --- FILTERING LOKAL (Cepat & Efisien) ---
+        // Cari buku yang judul ATAU penulisnya mengandung text pencarian
+        val filteredList = fullBookList.filter { book ->
+            book.title.lowercase().contains(searchText) ||
+                    book.author.lowercase().contains(searchText)
+        }
 
-            override fun onFailure(call: Call<BookResponse>, t: Throwable) {
-                showLoading(false)
-                Log.e("SearchFragment", "Network Failure: ${t.message}", t)
-            }
-        })
+        if (filteredList.isEmpty()) {
+            Toast.makeText(requireContext(), "Buku tidak ditemukan", Toast.LENGTH_SHORT).show()
+        }
+
+        bookAdapter.updateData(filteredList)
     }
 
     private fun showLoading(isLoading: Boolean) {
+        // Karena lokal sangat cepat, loading bar mungkin cuma kedip sebentar
         progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }

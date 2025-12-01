@@ -8,6 +8,8 @@ import androidx.lifecycle.LiveData
 
 @Dao
 interface BookDao {
+    @Query("DELETE FROM book_table")
+    suspend fun deleteAll()
     // 1. Masukkan buku baru (Buat admin nanti atau seeding data)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBook(book: Book)
