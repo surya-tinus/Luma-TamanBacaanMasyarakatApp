@@ -1,106 +1,121 @@
 package com.example.luma
 
+import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
-import android.widget.RatingBar
 import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONObject
+import com.example.luma.database.Book
+import com.example.luma.database.viewmodels.BookViewModel
+import com.google.android.material.chip.Chip
 
 class BookDetailFragment : Fragment() {
 
-    private val client = OkHttpClient()
+    // 1. Deklarasi Variabel untuk Buku yang sedang dilihat
+    private lateinit var currentBook: Book
+
+    // 2. Deklarasi ViewModel
+    private lateinit var bookViewModel: BookViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_book_detail, container, false)
+        // Pastikan layout XML kamu namanya 'fragment_book_detail'
+        return inflater.inflate(R.layout.fragment_book_detail, container, false)
+    }
 
-        val bookTitle = arguments?.getString("title")
-        val bookCategory = arguments?.getString("category")
-        val bookImageUrl = arguments?.getString("imageUrl")
-        val bookDescription = arguments?.getString("description")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        val titleTextView = view.findViewById<TextView>(R.id.tv_book_title)
-        val categoryTextView = view.findViewById<TextView>(R.id.tv_book_category)
-        val descriptionTextView = view.findViewById<TextView>(R.id.tv_book_description)
-        val imageView = view.findViewById<ImageView>(R.id.iv_book_cover)
-        val ratingBar = view.findViewById<RatingBar>(R.id.rating_bar)
-        val ratingText = view.findViewById<TextView>(R.id.tv_rating_value)
-        val backButton = view.findViewById<ImageView>(R.id.btn_back)
-
-        // Set data awal dari argument
-        titleTextView.text = bookTitle
-        categoryTextView.text = bookCategory
-        descriptionTextView.text = bookDescription
-
-        // Muat gambar dari URL argument
-        if (!bookImageUrl.isNullOrEmpty()) {
-            Glide.with(this)
-                .load(bookImageUrl)
-                .into(imageView)
+        // 3. AMBIL DATA BUKU DARI ARGUMENT (PENTING BIAR currentBook TIDAK MERAH)
+        // "selectedBook" harus sama dengan nama key saat dikirim dari HomeFragment
+        @Suppress("DEPRECATION")
+        currentBook = arguments?.getParcelable("selectedBook") ?: run {
+            // Kalau data ga ada, balik ke home biar ga crash
+            findNavController().navigateUp()
+            return
         }
 
-        // Default rating = 0
-        ratingBar.rating = 0f
-        ratingText.text = "0.0"
+        // 4. Inisialisasi ViewModel
+        bookViewModel = ViewModelProvider(requireActivity())[BookViewModel::class.java]
 
-        // Panggil Google Books API untuk data tambahan
-        if (!bookTitle.isNullOrEmpty()) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val url = "https://www.googleapis.com/books/v1/volumes?q=intitle:${bookTitle}"
-                    val request = Request.Builder().url(url).build()
-                    val response = client.newCall(request).execute()
-                    val body = response.body?.string()
+        // 5. Hubungkan View (Pastikan ID ini ada di XML kamu)
+        val ivCover = view.findViewById<ImageView>(R.id.iv_book_cover)
+        val tvTitle = view.findViewById<TextView>(R.id.tv_book_title)
+        val tvAuthor = view.findViewById<TextView>(R.id.tv_book_author)
+        val tvSynopsis = view.findViewById<TextView>(R.id.tv_book_description)
+        val chipCategory = view.findViewById<TextView>(R.id.tv_book_category)
+        val chipStock = view.findViewById<TextView>(R.id.tv_book_stock)
+        val btnBack = view.findViewById<View>(R.id.btn_back) // Bisa Button/ImageButton
 
-                    body?.let {
-                        val json = JSONObject(it)
-                        val items = json.optJSONArray("items")
-                        if (items != null && items.length() > 0) {
-                            val volumeInfo = items.getJSONObject(0).getJSONObject("volumeInfo")
-                            val description =
-                                volumeInfo.optString("description", "No description available")
-                            val imageLinks = volumeInfo.optJSONObject("imageLinks")
-                            val thumbnail = imageLinks?.optString("thumbnail", "")
-                                ?.replace("http://", "https://")
-                            val averageRating = volumeInfo.optDouble("averageRating", 0.0)
+        // Tombol Pinjam (Pastikan ID 'btn_borrow' sudah ada di XML)
+        val btnBorrow = view.findViewById<Button>(R.id.btn_borrow)
 
-                            requireActivity().runOnUiThread {
-                                descriptionTextView.text = description
-                                ratingBar.rating = averageRating.toFloat()
-                                ratingText.text = String.format("%.1f", averageRating)
-                                if (!thumbnail.isNullOrEmpty()) {
-                                    Glide.with(this@BookDetailFragment)
-                                        .load(thumbnail)
-                                        .into(imageView)
-                                }
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+        // 6. Tampilkan Data ke Layar
+        tvTitle.text = currentBook.title
+        tvAuthor.text = currentBook.author
+        tvSynopsis.text = currentBook.synopsis
+        chipCategory.text = currentBook.category
+        chipStock.text = "Stok: ${currentBook.stock}"
+
+        // Load Gambar
+        if (currentBook.imagePath.isNullOrEmpty()) {
+            Glide.with(this).load(R.drawable.logo_alt).into(ivCover)
+        } else {
+            Glide.with(this).load(currentBook.imagePath).into(ivCover)
+        }
+
+        // 7. AKSI TOMBOL PINJAM
+        btnBorrow.setOnClickListener {
+            // Cek Stok Dulu
+            if (currentBook.stock <= 0) {
+                Toast.makeText(requireContext(), "Yah, stok buku habis!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Ambil Username user yang sedang login
+            val sharedPref = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+            val username = sharedPref.getString("username", null)
+
+            if (username != null) {
+                // Panggil fungsi pinjam di ViewModel
+                bookViewModel.borrowBook(currentBook, username)
+            } else {
+                Toast.makeText(requireContext(), "Silakan login ulang!", Toast.LENGTH_SHORT).show()
             }
         }
 
-        backButton.setOnClickListener {
-            Log.d("BookDetailFragment", "Tombol Back Ditekan!")
+        // Tombol Back
+        btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
-        return view
+        // 8. OBSERVASI HASIL PEMINJAMAN (Dari ViewModel)
+        bookViewModel.borrowStatus.observe(viewLifecycleOwner) { message ->
+            if (message != null) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+
+                // Jika sukses, tombol didisable biar gak spam klik
+                if (message.contains("Berhasil")) {
+                    btnBorrow.isEnabled = false
+                    btnBorrow.text = "Buku Dipinjam"
+
+                    // Update tampilan stok secara manual biar langsung keliatan berkurang
+                    // (Walaupun nanti kalau di-refresh akan update otomatis dari firebase)
+                    chipStock.text = "Stok: ${currentBook.stock - 1}"
+                }
+
+                bookViewModel.resetBorrowStatus()
+            }
+        }
     }
 }

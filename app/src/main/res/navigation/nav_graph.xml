@@ -21,8 +21,8 @@
 
     <fragment
         android:id="@+id/borrowedFragment"
-        android:name="com.example.luma.network.BorrowedFragment"
-        android:label="Borrowed"
+        android:name="com.example.luma.BorrowedFragment"
+        android:label="fragment_borrowed"
         tools:layout="@layout/fragment_borrowed" />
 
     <fragment

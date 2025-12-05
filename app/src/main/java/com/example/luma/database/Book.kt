@@ -1,35 +1,21 @@
 package com.example.luma.database
 
 import android.os.Parcelable
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
+// Hapus semua anotasi @Entity, @PrimaryKey, @ColumnInfo
+// Firebase butuh constructor kosong (default value) agar bisa otomatis convert data
 @Parcelize
-@Entity(tableName = "book_table")
 data class Book(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    // ID di Firebase itu String unik (acak dari server), bukan Int
+    // Kita set var agar bisa diisi setelah data diambil
+    var id: String = "",
 
-    @ColumnInfo(name = "title")
-    val title: String,
-
-    @ColumnInfo(name = "author")
-    val author: String,
-
-    @ColumnInfo(name = "category")
-    val category: String,
-
-    @ColumnInfo(name = "synopsis")
-    val synopsis: String,
-
-    @ColumnInfo(name = "stock")
-    val stock: Int,
-
-    @ColumnInfo(name = "rating")
+    val title: String = "",
+    val author: String = "",
+    val category: String = "",
+    val synopsis: String = "",
+    val stock: Int = 0,
     val rating: Double = 0.0,
-
-    @ColumnInfo(name = "image_path") // Kita ganti namanya jadi image_path
-    val imagePath: String = "" // Tipe String, default-nya kosong
+    val imagePath: String = ""
 ) : Parcelable

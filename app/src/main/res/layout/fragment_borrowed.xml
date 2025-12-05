@@ -14,7 +14,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="180dp"
@@ -48,16 +47,13 @@
                     android:id="@+id/tvBorrowedSubtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:text="Books you've currently borrowed"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="#6BBF59"
                     android:textSize="16sp" />
             </LinearLayout>
-
         </LinearLayout>
 
-        <!-- Borrowed Books Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -85,8 +81,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:clipToPadding="false" />
-
-        </LinearLayout>
+                android:clipToPadding="false"
+                tools:listitem="@layout/item_borrowed_book"/> </LinearLayout>
     </LinearLayout>
 </ScrollView>

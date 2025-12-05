@@ -112,6 +112,8 @@ class HomeFragment : Fragment() {
             requireView().findNavController()
                 .navigate(R.id.action_homeFragment_to_exploreFragment)
         }
+
+        bookViewModel.seedData()
     }
 
     // Fungsi Filter Kategori (Lokal)
@@ -135,20 +137,20 @@ class HomeFragment : Fragment() {
 
     // Fungsi Buka Detail (Navigasi)
     private fun openDetail(selectedBook: Book) {
-        // Cek dulu apakah DetailFragment kamu sudah siap menerima Parcelable?
-        // Kalau belum, kita pakai Toast dulu biar gak crash.
-        // Nanti kalau DetailFragment sudah jadi, uncomment kode Intent di bawah.
-
-        Toast.makeText(requireContext(), "Buku: ${selectedBook.title}", Toast.LENGTH_SHORT).show()
-
-        /*
-        // KODE NAVIGASI (Aktifkan nanti):
-        // Kirim object Book utuh karena sudah @Parcelize
+        // 1. Bungkus data buku ke dalam Bundle
         val bundle = Bundle().apply {
-            putParcelable("DATA_BUKU", selectedBook)
+            putParcelable("selectedBook", selectedBook)
         }
-        requireView().findNavController()
-            .navigate(R.id.action_homeFragment_to_bookDetailFragment, bundle)
-        */
+
+        // 2. Lakukan Navigasi (Pastikan ID action-nya benar sesuai nav_graph)
+        // Cek apakah ID action kamu 'action_homeFragment_to_bookDetailFragment' ?
+        try {
+            requireView().findNavController()
+                .navigate(R.id.action_homeFragment_to_bookDetailFragment, bundle)
+        } catch (e: Exception) {
+            // Kalau error (misal lupa bikin panah di nav_graph), muncul toast ini
+            Toast.makeText(requireContext(), "Error Navigasi: ${e.message}", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+        }
     }
 }
