@@ -76,12 +76,52 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipActive"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="On Progress"
+                    android:checked="true"
+                    android:textColor="#233d18"
+                    app:chipBackgroundColor="@color/white"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipHistory"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="History"
+                    android:textColor="#233d18"
+                    app:chipBackgroundColor="@color/white"/>
+            </com.google.android.material.chip.ChipGroup>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvBorrowedBooks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:clipToPadding="false"
-                tools:listitem="@layout/item_borrowed_book"/> </LinearLayout>
+                tools:listitem="@layout/item_borrowed_book"/>
+
+            <TextView
+                android:id="@+id/tvEmptyState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Belum ada riwayat buku."
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#888888"
+                android:textSize="14sp"
+                android:layout_marginTop="32dp"
+                android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

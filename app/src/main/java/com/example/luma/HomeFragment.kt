@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.example.luma.database.Book // Pakai Book dari Database
+import com.example.luma.database.Book
 import com.example.luma.database.viewmodels.BookViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup

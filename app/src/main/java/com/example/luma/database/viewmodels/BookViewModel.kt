@@ -147,7 +147,7 @@ class BookViewModel(application: Application) : AndroidViewModel(application) {
 
         db.collection("loans")
             .whereEqualTo("userId", userId)
-            .whereEqualTo("status", "active") // <--- TAMBAHAN PENTING (Cuma ambil yang aktif)
+            // HAPUS BARIS INI: .whereEqualTo("status", "active") <--- BIANG KEROKNYA
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
                     _isLoading.value = false
@@ -196,5 +196,27 @@ class BookViewModel(application: Application) : AndroidViewModel(application) {
             }
     }
 
+    // FUNGSI SUBMIT REVIEW
+    fun submitReview(loan: Loan, rating: Float, review: String) {
+        _isLoading.value = true
+
+        val loanRef = db.collection("loans").document(loan.id)
+
+        // Update data loan dengan rating & review baru
+        val updates = mapOf(
+            "userRating" to rating,
+            "userReview" to review
+        )
+
+        loanRef.update(updates)
+            .addOnSuccessListener {
+                _isLoading.value = false
+                _borrowStatus.value = "Terima kasih atas ulasanmu!"
+            }
+            .addOnFailureListener {
+                _isLoading.value = false
+                _borrowStatus.value = "Gagal kirim ulasan: ${it.message}"
+            }
+    }
 
 }

@@ -10,9 +10,11 @@ data class Loan(
     val userId: String = "",
     val bookId: String = "",
     val bookTitle: String = "",
-    val bookAuthor: String = "", // <--- TAMBAHAN BARU
+    val bookAuthor: String = "",
     val bookImage: String = "",
     val borrowDate: Date? = null,
     val dueDate: Date? = null,
-    val status: String = "active"
+    val status: String = "active", // 'active' atau 'returned'
+    val userRating: Float = 0f,   // Rating bintang (0-5)
+    val userReview: String = ""   // Isi ulasan teks
 ) : Parcelable
