@@ -1,32 +1,15 @@
 package com.example.luma.database
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.ColumnInfo
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "user_table")
+@Parcelize
 data class User(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-
-    @ColumnInfo(name = "username")
-    val username: String,
-
-    @ColumnInfo(name = "email")
-    val email: String,
-
-    @ColumnInfo(name = "password")
-    val password: String,
-
-    @ColumnInfo(name = "phone") // Tambahan sesuai desain kamu
-    val phone: String,
-
-    @ColumnInfo(name = "address") // Tambahan sesuai desain kamu
-    val address: String,
-
-    @ColumnInfo(name = "birthdate") // Tambahan sesuai desain kamu
-    val birthdate: String,
-
-    @ColumnInfo(name = "role")
+    var id: String = "", // UID dari Firebase Auth
+    val username: String = "",
+    val email: String = "",
+    val phone: String = "",
+    val address: String = "",
+    val birthdate: String = "",
     val role: String = "member"
-)
+) : Parcelable

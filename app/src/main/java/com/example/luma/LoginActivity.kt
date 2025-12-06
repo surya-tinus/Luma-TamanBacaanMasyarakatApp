@@ -7,23 +7,21 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.luma.database.viewmodels.UserViewModel // Pastikan import ini ada
+import com.example.luma.viewmodels.UserViewModel
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var sharedPref: SharedPreferences
-    private lateinit var userViewModel: UserViewModel // 1. Tambah ViewModel
+    private lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login) // XML tetap pakai punya kamu
+        setContentView(R.layout.activity_login)
 
-        // 2. Inisialisasi ViewModel
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-
         sharedPref = getSharedPreferences("UserPrefs", MODE_PRIVATE)
 
-        // Cek jika sudah login sebelumnya (Auto-login)
+        // Auto Login Check
         if (sharedPref.getBoolean("isLoggedIn", false)) {
             val role = sharedPref.getString("role", "member")
             if (role == "admin") {
@@ -34,77 +32,60 @@ class LoginActivity : AppCompatActivity() {
             finish()
         }
 
-        val username = findViewById<EditText>(R.id.username)
-        val password = findViewById<EditText>(R.id.password)
+        // Note: ID di XML kamu 'username', tapi di Firebase kita pakai Email.
+        // Sebaiknya ganti hint di XML jadi "Email", atau biarkan user input email di kolom username.
+        val etEmail = findViewById<EditText>(R.id.username)
+        val etPassword = findViewById<EditText>(R.id.password)
         val loginButton = findViewById<Button>(R.id.login)
         val signupButton = findViewById<Button>(R.id.btnSignup)
         val loading = findViewById<ProgressBar>(R.id.loading)
 
         loginButton.setOnClickListener {
-            val user = username.text.toString().trim()
-            val pass = password.text.toString().trim()
+            val emailInput = etEmail.text.toString().trim()
+            val passInput = etPassword.text.toString().trim()
 
-            if (user.isEmpty() || pass.isEmpty()) {
-                Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show()
+            if (emailInput.isEmpty() || passInput.isEmpty()) {
+                Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             loading.visibility = View.VISIBLE
 
-            // Kita buat delay sedikit biar loading bar-nya kelihatan (UX)
-            loginButton.postDelayed({
-                // 3. Logika Login
-                when {
-                    // Akun Hardcoded (Admin)
-                    user == "admin" && pass == "admin123" -> {
-                        loading.visibility = View.GONE
-                        saveSession("Admin", "admin", 0) // Simpan sesi dummy
-                        startActivity(Intent(this, AdminMainActivity::class.java))
-                        finish()
-                    }
-                    // Akun Hardcoded (User Biasa)
-                    user == "user" && pass == "user123" -> {
-                        loading.visibility = View.GONE
-                        saveSession("User Default", "member", 0) // Simpan sesi dummy
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
-                    }
+            // Admin Hardcoded (Bypass Firebase)
+            if (emailInput == "admin" && passInput == "admin123") {
+                loading.visibility = View.GONE
+                saveSession("Admin", "admin", "admin_id_001")
+                startActivity(Intent(this, AdminMainActivity::class.java))
+                finish()
+                return@setOnClickListener
+            }
 
-                    // Cek ke Database Room (User yang daftar lewat Signup)
-                    else -> {
-                        // Panggil fungsi login di ViewModel
-                        userViewModel.login(user, pass)
-                        // Note: Loading jangan dimatikan di sini, tapi di dalam Observer di bawah
-                    }
-                }
-            }, 1000)
+            // Login Firebase
+            userViewModel.login(emailInput, passInput)
         }
 
-        // 4. Observer untuk menangkap hasil dari Database
-        userViewModel.loginResult.observe(this) { userData ->
-            // Matikan loading bar setelah database merespon
+        // --- OBSERVASI HASIL LOGIN ---
+        userViewModel.userResult.observe(this) { user ->
             loading.visibility = View.GONE
-
-            if (userData != null) {
-                // LOGIN SUKSES via Database
+            if (user != null) {
                 Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
 
-                // Simpan Sesi (PENTING: Agar MainActivity tahu siapa yang login)
-                saveSession(userData.username, userData.role, userData.id)
+                // Simpan Sesi (UID String)
+                saveSession(user.username, user.role, user.id)
 
-                // Arahkan sesuai role (jika nanti dikembangkan ada role di db)
-                if (userData.role == "admin") {
+                if (user.role == "admin") {
                     startActivity(Intent(this, AdminMainActivity::class.java))
                 } else {
                     startActivity(Intent(this, MainActivity::class.java))
                 }
                 finish()
-            } else {
-                // LOGIN GAGAL (Data tidak ditemukan di database)
-                // Kita cek dulu apakah input field tidak kosong agar toast tidak muncul saat inisialisasi
-                if (username.text.isNotEmpty()) {
-                    Toast.makeText(this, "Invalid credentials!", Toast.LENGTH_SHORT).show()
-                }
+            }
+        }
+
+        userViewModel.errorMsg.observe(this) { error ->
+            if (error != null) {
+                loading.visibility = View.GONE
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -113,13 +94,12 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // Fungsi helper untuk menyimpan sesi login
-    private fun saveSession(username: String, role: String, userId: Int) {
+    private fun saveSession(username: String, role: String, userId: String) {
         val editor = sharedPref.edit()
         editor.putBoolean("isLoggedIn", true)
-        editor.putString("username", username)
+        editor.putString("username", username) // Nama user
         editor.putString("role", role)
-        editor.putInt("userId", userId)
+        editor.putString("userId", userId) // Simpan UID Firebase (String)
         editor.apply()
     }
 }

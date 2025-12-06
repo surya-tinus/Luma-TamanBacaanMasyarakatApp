@@ -3,24 +3,25 @@ package com.example.luma
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.luma.database.User
-import com.example.luma.database.viewmodels.UserViewModel
+import com.example.luma.viewmodels.UserViewModel
 import java.util.*
 
 class SignupActivity : AppCompatActivity() {
 
     private lateinit var birthdate: EditText
-    // 1. Ganti SharedPreferences dengan ViewModel
     private lateinit var userViewModel: UserViewModel
+    private lateinit var loadingBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_signup) // Tetap pakai layout desain kamu
+        setContentView(R.layout.activity_signup)
 
-        // 2. Inisialisasi ViewModel
+        // Init ViewModel
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
 
         val username = findViewById<EditText>(R.id.etSignupUsername)
@@ -29,17 +30,16 @@ class SignupActivity : AppCompatActivity() {
         val confirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
         val phone = findViewById<EditText>(R.id.etSignupPhone)
         val address = findViewById<EditText>(R.id.etSignupAddress)
-        // Note: ID etSignupBirthdate di layout kamu ada di dalam TextInputLayout,
-        // tapi findViewById biasanya tetap bisa menemukannya jika ID-nya benar di TextInputEditText
         birthdate = findViewById(R.id.etSignupBirthdate)
 
         val signupButton = findViewById<Button>(R.id.btnSignupConfirm)
         val loginRedirect = findViewById<TextView>(R.id.tvLoginRedirect)
 
-        // ✨ Logika DatePicker (Tetap sama seperti kodemu)
-        birthdate.setOnClickListener {
-            showDatePicker()
-        }
+        // Tambahkan ProgressBar di XML kamu kalau belum ada, atau pakai Toast loading
+        // Untuk sekarang kita asumsikan kamu bisa tambah ProgressBar id: pbLoading di activity_signup.xml
+        // Kalau ga ada, kita skip visual loading bar-nya.
+
+        birthdate.setOnClickListener { showDatePicker() }
 
         signupButton.setOnClickListener {
             val user = username.text.toString().trim()
@@ -50,42 +50,44 @@ class SignupActivity : AppCompatActivity() {
             val userAddress = address.text.toString().trim()
             val userBirth = birthdate.text.toString().trim()
 
-            // Validasi Input Kosong
-            if (user.isEmpty() || userEmail.isEmpty() || pass.isEmpty() || confirm.isEmpty() ||
-                userPhone.isEmpty() || userAddress.isEmpty() || userBirth.isEmpty()
-            ) {
+            if (user.isEmpty() || userEmail.isEmpty() || pass.isEmpty() || confirm.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Validasi Password Match
             if (pass != confirm) {
                 Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // 3. Simpan ke Database Room via ViewModel
+            // Siapkan Data User (Tanpa Password, Password dikirim terpisah ke Auth)
             val newUser = User(
                 username = user,
                 email = userEmail,
-                password = pass,
                 phone = userPhone,
                 address = userAddress,
                 birthdate = userBirth,
                 role = "member"
             )
 
-            userViewModel.register(newUser)
+            // Panggil Register Firebase
+            // (ViewModel otomatis handle Auth & Firestore)
+            userViewModel.register(newUser, pass)
         }
 
-        // 4. Observasi Status Register (Sukses/Gagal)
-        userViewModel.registerStatus.observe(this) { isSuccess ->
-            if (isSuccess) {
+        // --- OBSERVASI HASIL REGISTER ---
+        userViewModel.userResult.observe(this) { user ->
+            if (user != null) {
                 Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
-            } else {
-                Toast.makeText(this, "Registration Failed! Username might be taken.", Toast.LENGTH_SHORT).show()
+                userViewModel.doneNavigating()
+            }
+        }
+
+        userViewModel.errorMsg.observe(this) { error ->
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show()
             }
         }
 

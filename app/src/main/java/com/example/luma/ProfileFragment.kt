@@ -3,12 +3,18 @@ package com.example.luma
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.example.luma.database.User
+import com.example.luma.viewmodels.UserViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
@@ -20,13 +26,20 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private lateinit var btnEdit: Button
     private lateinit var btnLogout: Button
 
-    private lateinit var sharedPref: android.content.SharedPreferences
+    private lateinit var userViewModel: UserViewModel
+    private lateinit var sharedPref: SharedPreferences
+
+    // Simpan data user sementara buat dikirim ke Edit
+    private var currentUser: User? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 1. Inisialisasi ViewModel & Prefs
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         sharedPref = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
 
+        // 2. Hubungkan View
         tvName = view.findViewById(R.id.tvUserName)
         tvEmail = view.findViewById(R.id.tvUserEmail)
         tvPhone = view.findViewById(R.id.tvUserPhone)
@@ -35,31 +48,54 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         btnEdit = view.findViewById(R.id.btnEditProfile)
         btnLogout = view.findViewById(R.id.btnLogout)
 
-        showProfileData()
-
-        btnEdit.setOnClickListener {
-            val bundle = Bundle().apply {
-                putString("name", sharedPref.getString("username", "User"))
-                putString("email", sharedPref.getString("username", "User") + "@example.com")
-                putString("phone", sharedPref.getString("phone", ""))
-                putString("birthdate", sharedPref.getString("birthdate", ""))
-            }
-            findNavController().navigate(R.id.editProfileFragment, bundle)
+        // 3. Ambil UID dari Sesi & Minta Data ke Firebase
+        val uid = sharedPref.getString("userId", null)
+        if (uid != null) {
+            userViewModel.fetchUserProfile(uid)
+        } else {
+            // Kalau sesi hilang, paksa logout
+            logoutUser()
         }
 
+        // 4. Observasi Data Profil (Realtime)
+        userViewModel.userResult.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                currentUser = user
+                displayData(user)
+            }
+        }
+
+        // 5. Tombol Edit (Kirim data real ke EditFragment)
+        btnEdit.setOnClickListener {
+            // Pastikan kamu punya 'action_profileFragment_to_editProfileFragment' di nav_graph
+            // Dan EditProfileFragment siap menerima Bundle ini
+            if (currentUser != null) {
+                val bundle = Bundle().apply {
+                    putString("uid", currentUser!!.id)
+                    putString("name", currentUser!!.username)
+                    putString("email", currentUser!!.email)
+                    putString("phone", currentUser!!.phone)
+                    putString("address", currentUser!!.address)
+                    putString("birthdate", currentUser!!.birthdate)
+                }
+                // Uncomment baris ini kalau EditProfileFragment sudah ada di nav_graph
+                // findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment, bundle)
+                Toast.makeText(context, "Fitur Edit Profil Segera Hadir!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // 6. Tombol Logout
         btnLogout.setOnClickListener {
             showLogoutConfirmation()
         }
+    }
 
-        parentFragmentManager.setFragmentResultListener("profile_update", viewLifecycleOwner) { _, bundle ->
-            with(sharedPref.edit()) {
-                putString("username", bundle.getString("name"))
-                putString("phone", bundle.getString("phone"))
-                putString("birthdate", bundle.getString("birthdate"))
-                apply()
-            }
-            showProfileData()
-        }
+    private fun displayData(user: User) {
+        tvName.text = user.username
+        tvEmail.text = user.email
+        tvPhone.text = formatPhoneNumber(user.phone)
+        tvAddress.text = user.address
+        tvBirthdate.text = user.birthdate
     }
 
     private fun showLogoutConfirmation() {
@@ -67,29 +103,29 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             .setTitle("Logout")
             .setMessage("Apakah Anda yakin ingin keluar dari akun Anda?")
             .setPositiveButton("Ya") { _, _ ->
-                val intent = Intent(requireContext(), LoginActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
+                logoutUser()
             }
             .setNegativeButton("Batal", null)
             .show()
     }
 
-    private fun showProfileData() {
-        val userName = sharedPref.getString("username", "User123456")
-        val userEmail = "$userName@example.com"
-        val userPhone = sharedPref.getString("phone", "081234567890")
-        val userAddress = sharedPref.getString("address", "Scientia Boulevard Gading, Curug Sangereng")
-        val userBirthdate = sharedPref.getString("birthdate", "29 May 2000")
+    private fun logoutUser() {
+        // 1. Logout dari Firebase
+        FirebaseAuth.getInstance().signOut()
 
-        tvName.text = userName
-        tvEmail.text = userEmail
-        tvPhone.text = formatPhoneNumber(userPhone ?: "")
-        tvAddress.text = userAddress
-        tvBirthdate.text = userBirthdate
+        // 2. Hapus Sesi Lokal (SharedPreferences)
+        val editor = sharedPref.edit()
+        editor.clear() // Hapus semua data (username, userId, isLoggedIn)
+        editor.apply()
+
+        // 3. Pindah ke Login & Hapus History
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
     }
 
     private fun formatPhoneNumber(phone: String): String {
+        // Logika formatting kamu tetap dipertahankan
         val digits = phone.filter { it.isDigit() }
         val parts = mutableListOf<String>()
         var i = 0

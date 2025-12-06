@@ -1,7 +1,6 @@
 package com.example.luma
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,10 +15,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2 // Import Baru
 import com.example.luma.database.Book
+import com.example.luma.database.viewmodels.AnnouncementViewModel
 import com.example.luma.database.viewmodels.BookViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.tabs.TabLayout // Import Baru
+import com.google.android.material.tabs.TabLayoutMediator // Import Baru
 import java.util.Calendar
 
 class HomeFragment : Fragment() {
@@ -29,96 +32,111 @@ class HomeFragment : Fragment() {
     private lateinit var categoryAdapter: BookAdapter
     private lateinit var newestAdapter: BookAdapter
 
-    // Kita pakai ViewModel, bukan Retrofit lagi
-    private lateinit var bookViewModel: BookViewModel
+    // Adapter untuk Slider Pengumuman
+    private lateinit var announcementAdapter: AnnouncementAdapter
 
-    // Data List
+    private lateinit var bookViewModel: BookViewModel
+    private lateinit var announcementViewModel: AnnouncementViewModel
+
     private var allBooksList = listOf<Book>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_home, container, false) // Layout tetap sama!
+    ): View? = inflater.inflate(R.layout.fragment_home, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Setup Greeting & Username (Sama seperti kodemu)
+        // Setup Greeting
         val greetingTextView = view.findViewById<TextView>(R.id.tv_greeting)
         val usernameGreeting = view.findViewById<TextView>(R.id.username_greeting)
         val sharedPref = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-
-        // Ambil nama user yang login (Default: User123456)
         val username = sharedPref.getString("username", "User123456")
         greetingTextView.text = getGreeting()
         usernameGreeting.text = username
 
-        // 2. Inisialisasi ViewModel
+        // Inisialisasi ViewModel
         bookViewModel = ViewModelProvider(requireActivity())[BookViewModel::class.java]
+        announcementViewModel = ViewModelProvider(requireActivity())[AnnouncementViewModel::class.java]
 
-        // 3. Setup RecyclerView Category (Horizontal)
+        // --- SETUP CAROUSEL PENGUMUMAN (BARU) ---
+        // Cari ID ViewPager2 dan TabLayout, BUKAN RecyclerView lagi
+        val vpAnnouncements = view.findViewById<ViewPager2>(R.id.vpAnnouncements)
+        val tabIndicator = view.findViewById<TabLayout>(R.id.tabIndicator)
+
+        announcementAdapter = AnnouncementAdapter(emptyList())
+        vpAnnouncements.adapter = announcementAdapter // Pasang adapter ke ViewPager
+
+        // Hubungkan Titik-titik (Tab) dengan Slider
+        TabLayoutMediator(tabIndicator, vpAnnouncements) { _, _ ->
+            // Tidak ada judul tab, cuma titik
+        }.attach()
+        // ----------------------------------------
+
+        // Setup RecyclerView Category
         rvCategory = view.findViewById(R.id.rv_category_books)
         rvCategory.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         val categorySnap = LinearSnapHelper()
         categorySnap.attachToRecyclerView(rvCategory)
-
-        // Inisialisasi Adapter dengan list kosong dulu
-        categoryAdapter = BookAdapter(emptyList()) { selectedBook ->
-            openDetail(selectedBook)
-        }
+        categoryAdapter = BookAdapter(emptyList()) { selectedBook -> openDetail(selectedBook) }
         rvCategory.adapter = categoryAdapter
 
-        // 4. Setup RecyclerView Newest (Grid)
+        // Setup RecyclerView Newest
         rvNewest = view.findViewById(R.id.rv_new_books)
-        // Matikan nested scrolling biar smooth di dalam ScrollView
         rvNewest.isNestedScrollingEnabled = false
         rvNewest.layoutManager = GridLayoutManager(requireContext(), 3)
-
-        newestAdapter = BookAdapter(emptyList()) { selectedBook ->
-            openDetail(selectedBook)
-        }
+        newestAdapter = BookAdapter(emptyList()) { selectedBook -> openDetail(selectedBook) }
         rvNewest.adapter = newestAdapter
 
-        // 5. Observasi Data dari Database (Room)
-        // Begitu ada data (dari Seeding tadi), kode ini jalan otomatis
+        // --- OBSERVASI DATA ---
+
+        // 1. Observasi Buku
         bookViewModel.allBooks.observe(viewLifecycleOwner) { books ->
             allBooksList = books
-
-            // Tampilkan semua buku di bagian "Newest"
-            // (Logika: balik urutan biar yang baru di atas, ambil 6 teratas saja)
             newestAdapter.updateData(books.reversed().take(6))
-
-            // Default kategori awal: Romance
             filterCategory("Romance")
         }
 
-        // 6. ChipGroup Listener (Filter Kategori Lokal)
+        // 2. Observasi Pengumuman
+        announcementViewModel.announcements.observe(viewLifecycleOwner) { list ->
+            // Cari CardView pembungkusnya
+            val cvAnnouncement = view.findViewById<View>(R.id.cvAnnouncement)
+
+            if (list.isNotEmpty()) {
+                cvAnnouncement.visibility = View.VISIBLE
+                announcementAdapter.updateData(list) // Update data slider
+            } else {
+                // Kalau mau disembunyikan total jika kosong:
+                cvAnnouncement.visibility = View.GONE
+
+                // Kalau mau tetap tampil tapi teks kosong (sesuai request kamu sebelumnya):
+                // cvAnnouncement.visibility = View.VISIBLE
+                // announcementAdapter.updateData(emptyList())
+            }
+        }
+
+        // ChipGroup Listener
         val chipGroup = view.findViewById<ChipGroup>(R.id.layout_categories)
         chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isNotEmpty()) {
                 val chip = group.findViewById<Chip>(checkedIds.first())
                 chip?.let {
-                    val categoryName = it.text.toString()
-                    filterCategory(categoryName)
+                    filterCategory(it.text.toString())
                 }
             } else {
-                // Kalau tidak ada yang dipilih, tampilkan semua di kategori
                 categoryAdapter.updateData(allBooksList)
             }
         }
 
-        // 7. Explore Button (Tetap navigasi ke fragment explore)
+        // Explore Button
         view.findViewById<Button>(R.id.btn_explore).setOnClickListener {
             requireView().findNavController()
                 .navigate(R.id.action_homeFragment_to_exploreFragment)
         }
-
-        //bookViewModel.seedData()
     }
 
-    // Fungsi Filter Kategori (Lokal)
     private fun filterCategory(category: String) {
-        // Cari buku yang kategorinya mengandung teks tersebut (ignore case)
         val filteredList = allBooksList.filter { book ->
             book.category.contains(category, ignoreCase = true)
         }
@@ -135,22 +153,15 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // Fungsi Buka Detail (Navigasi)
     private fun openDetail(selectedBook: Book) {
-        // 1. Bungkus data buku ke dalam Bundle
         val bundle = Bundle().apply {
             putParcelable("selectedBook", selectedBook)
         }
-
-        // 2. Lakukan Navigasi (Pastikan ID action-nya benar sesuai nav_graph)
-        // Cek apakah ID action kamu 'action_homeFragment_to_bookDetailFragment' ?
         try {
             requireView().findNavController()
                 .navigate(R.id.action_homeFragment_to_bookDetailFragment, bundle)
         } catch (e: Exception) {
-            // Kalau error (misal lupa bikin panah di nav_graph), muncul toast ini
             Toast.makeText(requireContext(), "Error Navigasi: ${e.message}", Toast.LENGTH_SHORT).show()
-            e.printStackTrace()
         }
     }
 }
