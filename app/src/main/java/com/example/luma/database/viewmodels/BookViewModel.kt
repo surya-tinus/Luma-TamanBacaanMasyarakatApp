@@ -141,13 +141,13 @@ class BookViewModel(application: Application) : AndroidViewModel(application) {
     private val _userLoans = MutableLiveData<List<Loan>>()
     val userLoans: LiveData<List<Loan>> = _userLoans
 
-    // Fungsi Ambil Data Peminjaman User
+    // 1. UPDATE FUNGSI INI (Tambahkan filter status)
     fun fetchUserLoans(userId: String) {
         _isLoading.value = true
 
-        // Cari di tabel 'loans' yang 'userId'-nya sama dengan yang login
         db.collection("loans")
             .whereEqualTo("userId", userId)
+            .whereEqualTo("status", "active") // <--- TAMBAHAN PENTING (Cuma ambil yang aktif)
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
                     _isLoading.value = false
@@ -166,4 +166,35 @@ class BookViewModel(application: Application) : AndroidViewModel(application) {
                 _isLoading.value = false
             }
     }
+
+    // 2. TAMBAHKAN FUNGSI INI (Untuk Kembalikan Buku)
+    fun returnBook(loan: Loan) {
+        _isLoading.value = true
+
+        val bookRef = db.collection("books").document(loan.bookId)
+        val loanRef = db.collection("loans").document(loan.id)
+
+        db.runTransaction { transaction ->
+            // A. Ambil stok buku saat ini
+            val snapshot = transaction.get(bookRef)
+            val currentStock = snapshot.getLong("stock")?.toInt() ?: 0
+
+            // B. Tambah Stok (+1)
+            transaction.update(bookRef, "stock", currentStock + 1)
+
+            // C. Ubah status peminjaman jadi 'returned'
+            // (Otomatis hilang dari list karena filter di atas)
+            transaction.update(loanRef, "status", "returned")
+        }
+            .addOnSuccessListener {
+                _isLoading.value = false
+                _borrowStatus.value = "Buku berhasil dikembalikan!"
+            }
+            .addOnFailureListener { e ->
+                _isLoading.value = false
+                _borrowStatus.value = "Gagal mengembalikan: ${e.message}"
+            }
+    }
+
+
 }

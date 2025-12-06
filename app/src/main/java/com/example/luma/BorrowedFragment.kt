@@ -35,11 +35,18 @@ class BorrowedFragment : Fragment() {
         // 2. Setup RecyclerView
         binding.rvBorrowedBooks.layoutManager = LinearLayoutManager(requireContext())
 
-        // Inisialisasi Adapter dengan list kosong
+        // Setup Adapter dengan Konfirmasi Dialog
         adapter = LoanAdapter(emptyList()) { loan ->
-            // Aksi saat tombol "Return" diklik
-            Toast.makeText(context, "Fitur Kembalikan Buku: ${loan.bookTitle}", Toast.LENGTH_SHORT).show()
-            // Nanti kita tambahkan logika returnBook(loan) di sini
+            // Munculkan Dialog Konfirmasi biar user gak kepencet
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Kembalikan Buku")
+                .setMessage("Apakah kamu yakin ingin mengembalikan buku '${loan.bookTitle}'?")
+                .setPositiveButton("Ya, Kembalikan") { _, _ ->
+                    // Panggil fungsi Return di ViewModel
+                    bookViewModel.returnBook(loan)
+                }
+                .setNegativeButton("Batal", null)
+                .show()
         }
         binding.rvBorrowedBooks.adapter = adapter
 

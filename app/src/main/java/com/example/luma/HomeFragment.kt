@@ -113,7 +113,7 @@ class HomeFragment : Fragment() {
                 .navigate(R.id.action_homeFragment_to_exploreFragment)
         }
 
-        bookViewModel.seedData()
+        //bookViewModel.seedData()
     }
 
     // Fungsi Filter Kategori (Lokal)
