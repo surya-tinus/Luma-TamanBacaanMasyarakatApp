@@ -5,6 +5,11 @@
         android:title="Books" />
 
     <item
+        android:id="@+id/manageAnnouncementsFragment"
+        android:icon="@drawable/ic_announcement"
+        android:title="Announcements" />
+
+    <item
         android:id="@+id/membersFragment"
         android:icon="@drawable/ic_user"
         android:title="Members" />
