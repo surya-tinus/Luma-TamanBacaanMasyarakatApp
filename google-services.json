@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "315757957528",
+    "project_id": "luma-99068",
+    "storage_bucket": "luma-99068.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315757957528:android:13c4c50e364493948b5bed",
+        "android_client_info": {
+          "package_name": "com.example.luma"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBFvDRwDgyUSysx065HJeZ-cc0Cpm5Qok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
