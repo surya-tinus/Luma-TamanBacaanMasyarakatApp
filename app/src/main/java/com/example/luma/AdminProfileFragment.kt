@@ -1,6 +1,7 @@
 package com.example.luma
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -10,8 +11,8 @@ import androidx.fragment.app.Fragment
 
 class AdminProfileFragment : Fragment(R.layout.fragment_admin_profile) {
 
-    private var adminName = "Jane Doe"
-    private var adminEmail = "janedoe@example.com"
+    private var adminName = "Admin Luma"
+    private var adminEmail = "admin.luma@example.com"
     private var adminPhone = "081298765432"
     private var adminAddress = "Taman Bacaan Kelurahan Curug Sangereng"
     private var adminBirthdate = "22 January 1999"
@@ -67,9 +68,21 @@ class AdminProfileFragment : Fragment(R.layout.fragment_admin_profile) {
             .setTitle("Logout")
             .setMessage("Apakah Anda yakin ingin keluar dari akun admin?")
             .setPositiveButton("Ya") { _, _ ->
+
+                // 1. Firebase logout
+                com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
+
+                // 2. Hapus SharedPreferences session
+                val prefs = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+                prefs.edit().clear().apply()
+
+                // 3. Kembali ke LoginActivity dengan clear task
                 val intent = Intent(requireContext(), LoginActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
+
+                // 4. Tutup activity AdminMainActivity
+                requireActivity().finish()
             }
             .setNegativeButton("Batal", null)
             .show()

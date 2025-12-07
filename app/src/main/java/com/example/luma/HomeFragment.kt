@@ -65,7 +65,7 @@ class HomeFragment : Fragment() {
         val vpAnnouncements = view.findViewById<ViewPager2>(R.id.vpAnnouncements)
         val tabIndicator = view.findViewById<TabLayout>(R.id.tabIndicator)
 
-        announcementAdapter = AnnouncementAdapter(emptyList())
+        announcementAdapter = AnnouncementAdapter(emptyList()) { }
         vpAnnouncements.adapter = announcementAdapter // Pasang adapter ke ViewPager
 
         // Hubungkan Titik-titik (Tab) dengan Slider

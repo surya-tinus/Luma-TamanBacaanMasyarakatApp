@@ -9,11 +9,12 @@ import com.example.luma.database.Announcement
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class AnnouncementAdapter(private var list: List<Announcement>) :
-    RecyclerView.Adapter<AnnouncementAdapter.ViewHolder>() {
+class AnnouncementAdapter(
+    private var list: List<Announcement>,
+    private val onClick: (Announcement) -> Unit
+) : RecyclerView.Adapter<AnnouncementAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        // Hubungkan dengan ID di item_announcement.xml
         val tvDate: TextView = view.findViewById(R.id.tvAnnounceDate)
         val tvTitle: TextView = view.findViewById(R.id.tvAnnounceTitle)
         val tvContent: TextView = view.findViewById(R.id.tvAnnounceContent)
@@ -21,11 +22,12 @@ class AnnouncementAdapter(private var list: List<Announcement>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        // PENTING: Gunakan layout item_announcement yang baru
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_announcement, parent, false)
         return ViewHolder(view)
     }
+
+    override fun getItemCount() = list.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = list[position]
@@ -35,10 +37,14 @@ class AnnouncementAdapter(private var list: List<Announcement>) :
 
         val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         holder.tvDate.text = dateFormat.format(item.date)
-        holder.tvTime.text = "Pukul " + SimpleDateFormat("HH:mm", Locale.getDefault()).format(item.date)
-    }
 
-    override fun getItemCount() = list.size
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        holder.tvTime.text = "Pukul ${timeFormat.format(item.date)}"
+
+        holder.itemView.setOnClickListener {
+            onClick(item)
+        }
+    }
 
     fun updateData(newList: List<Announcement>) {
         list = newList

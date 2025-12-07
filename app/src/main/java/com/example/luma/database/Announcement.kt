@@ -7,8 +7,9 @@ import java.util.Date
 @Parcelize
 data class Announcement(
     var id: String = "",
-    val title: String = "",
-    val content: String = "",
-    val date: Date = Date(),
-    val type: String = "info" // 'info', 'event', 'new_book'
+    var title: String = "",
+    var content: String = "",
+    var date: Date = Date(),
+    var type: String = "info",
+    var stability: Int = 0
 ) : Parcelable

@@ -293,7 +293,7 @@
 
                 <com.google.android.material.chip.Chip
 
-                    android:text="Romansa"
+                    android:text="Romance"
 
                     android:layout_width="wrap_content"
 
@@ -325,7 +325,7 @@
 
                 <com.google.android.material.chip.Chip
 
-                    android:text="Komedi"
+                    android:text="Comedy"
 
                     android:layout_width="wrap_content"
 
@@ -341,7 +341,7 @@
 
                 <com.google.android.material.chip.Chip
 
-                    android:text="Fiksi"
+                    android:text="Fiction"
 
                     android:layout_width="wrap_content"
 
