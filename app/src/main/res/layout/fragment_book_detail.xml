@@ -133,6 +133,35 @@
                 android:textColor="#233d18"
                 android:lineSpacingExtra="4dp" />
         </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ulasan Pembaca"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="18sp"
+            android:textColor="#233d18"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_no_reviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Belum ada ulasan. Jadilah yang pertama!"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="#888"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:padding="24dp"
+            android:background="@drawable/bg_card"
+            android:backgroundTint="#F5F5F5"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_reviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"/>
         <Button
             android:id="@+id/btn_borrow"
             android:layout_width="match_parent"
@@ -140,4 +169,5 @@
             android:text="Pinjam Buku"
             android:backgroundTint="#233d18"/>
     </LinearLayout>
+
 </ScrollView>

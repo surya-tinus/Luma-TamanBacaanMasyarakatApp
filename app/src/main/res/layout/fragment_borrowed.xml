@@ -38,7 +38,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_bold"
-                    android:text="Borrowed Books"
+                    android:text="Daftar Buku Pinjaman"
                     android:textColor="@color/black"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -47,7 +47,7 @@
                     android:id="@+id/tvBorrowedSubtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Books you've currently borrowed"
+                    android:text="Buku yang sedang anda pinjam"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="#6BBF59"
                     android:textSize="16sp" />
@@ -71,7 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_bold"
-                android:text="Your Borrowed List"
+                android:text="Daftar Buku Pinjaman"
                 android:textColor="#233d18"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -90,7 +90,7 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="On Progress"
+                    android:text="Sedang Dipinjam"
                     android:checked="true"
                     android:textColor="#233d18"
                     app:chipBackgroundColor="@color/white"/>
@@ -100,7 +100,7 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="History"
+                    android:text="Riwayat Peminjaman"
                     android:textColor="#233d18"
                     app:chipBackgroundColor="@color/white"/>
             </com.google.android.material.chip.ChipGroup>

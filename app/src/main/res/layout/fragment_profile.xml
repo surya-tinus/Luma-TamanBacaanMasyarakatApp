@@ -61,7 +61,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Phone"
+                android:text="Nomor Telpon"
                 android:textStyle="bold"
                 android:textColor="#233d18" />
 
@@ -75,7 +75,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Address"
+                android:text="Alamat"
                 android:textStyle="bold"
                 android:textColor="#233d18" />
 
@@ -89,7 +89,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Birthdate"
+                android:text="Tanggal Lahir"
                 android:textStyle="bold"
                 android:textColor="#233d18" />
 
@@ -100,16 +100,27 @@
                 android:text="" />
         </LinearLayout>
 
-        <!-- Tombol Edit Profile (dummy untuk sekarang) -->
+        <!-- Tombol Edit Profile -->
         <Button
             android:id="@+id/btnEditProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Edit Profile"
+            android:text="Edit Profil"
             android:layout_marginTop="24dp"
             android:backgroundTint="#677e5d"
             android:textColor="@color/white"
             android:drawableStart="@drawable/ic_edit"
+            android:drawablePadding="8dp"/>
+
+        <Button
+            android:id="@+id/btnChangePass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ganti Password"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#FF9800"
+            android:textColor="@color/white"
+            android:drawableStart="@drawable/ic_lock"
             android:drawablePadding="8dp"/>
 
         <!-- Tombol Logout -->

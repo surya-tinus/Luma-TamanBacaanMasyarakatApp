@@ -64,17 +64,22 @@ class SearchFragment : Fragment() {
     private fun setupRecyclerView() {
         // Inisialisasi dengan list kosong
         bookAdapter = BookAdapter(emptyList()) { selectedBook ->
-            // --- NAVIGASI KE DETAIL ---
-            // Sesuaikan key bundle dengan apa yang diterima DetailFragment nanti
+            // --- PERBAIKAN DI SINI ---
+            // Kirim Object Book Utuh (Parcelable) dengan kunci "selectedBook"
+            // Ini harus SAMA PERSIS dengan cara HomeFragment mengirim data
             val bundle = bundleOf(
-                "title" to selectedBook.title,
-                "category" to selectedBook.category,
-                "imagePath" to selectedBook.imagePath, // Dulu imageUrl
-                "synopsis" to selectedBook.synopsis      // Dulu description
+                "selectedBook" to selectedBook
             )
-            // Pastikan ID action di nav_graph sudah benar
-            findNavController().navigate(R.id.action_searchFragment_to_bookDetailFragment, bundle)
+
+            // Navigasi ke Detail
+            try {
+                findNavController().navigate(R.id.action_searchFragment_to_bookDetailFragment, bundle)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(requireContext(), "Gagal membuka detail", Toast.LENGTH_SHORT).show()
+            }
         }
+
         recyclerView.adapter = bookAdapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
     }

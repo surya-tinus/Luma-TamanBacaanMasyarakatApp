@@ -149,8 +149,12 @@ class BorrowedFragment : Fragment() {
             val review = etReview.text.toString()
 
             if (rating > 0) {
-                // Panggil fungsi submit review di ViewModel
-                bookViewModel.submitReview(loan, rating, review)
+                // Ambil username dari SharedPreferences
+                val sharedPref = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+                val userName = sharedPref.getString("username", "Anonymous") ?: "Anonymous"
+
+                // Panggil fungsi submit review dengan username
+                bookViewModel.submitReview(loan, rating, review, userName)
                 dialog.dismiss()
             } else {
                 Toast.makeText(context, "Kasih bintang dulu dong!", Toast.LENGTH_SHORT).show()

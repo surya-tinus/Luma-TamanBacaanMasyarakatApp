@@ -8,7 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.example.luma.database.User
+import com.example.luma.viewmodels.UserViewModel
 import java.util.*
 
 class EditProfileFragment : Fragment() {
@@ -16,81 +19,90 @@ class EditProfileFragment : Fragment() {
     private lateinit var nameField: EditText
     private lateinit var emailField: EditText
     private lateinit var phoneField: EditText
+    private lateinit var addressField: EditText
     private lateinit var birthdateField: EditText
     private lateinit var saveButton: Button
     private lateinit var cancelButton: Button
 
-    private var userName = ""
-    private var userEmail = ""
-    private var userPhone = ""
-    private var userBirthdate = ""
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            userName = it.getString("name", "")
-            userEmail = it.getString("email", "")
-            userPhone = it.getString("phone", "")
-            userBirthdate = it.getString("birthdate", "")
-        }
-    }
+    private lateinit var userViewModel: UserViewModel
+    private var userId: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_edit_profile, container, false)
+        return inflater.inflate(R.layout.fragment_edit_profile, container, false)
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
+
+        // Hubungkan View (Pastikan ID Password TIDAK ADA DI SINI)
         nameField = view.findViewById(R.id.editTextName)
         emailField = view.findViewById(R.id.editTextEmail)
         phoneField = view.findViewById(R.id.editTextPhone)
+        addressField = view.findViewById(R.id.editTextAddress)
         birthdateField = view.findViewById(R.id.editTextBirthdate)
+
         saveButton = view.findViewById(R.id.buttonSave)
         cancelButton = view.findViewById(R.id.buttonCancel)
 
-        nameField.setText(userName)
-        emailField.setText(userEmail)
-        phoneField.setText(userPhone)
-        birthdateField.setText(userBirthdate)
+        // Ambil Data
+        arguments?.let { bundle ->
+            userId = bundle.getString("uid", "")
+            nameField.setText(bundle.getString("name", ""))
+            emailField.setText(bundle.getString("email", ""))
+            phoneField.setText(bundle.getString("phone", ""))
+            addressField.setText(bundle.getString("address", ""))
+            birthdateField.setText(bundle.getString("birthdate", ""))
 
-        // Saat klik field birthdate → buka DatePickerDialog
-        birthdateField.setOnClickListener {
-            showDatePickerDialog()
+            // Disable Email (Tidak bisa diedit di sini)
+            emailField.isEnabled = false
         }
 
+        // Date Picker
+        birthdateField.setOnClickListener {
+            showDatePickerDialog(birthdateField.text.toString())
+        }
+
+        // Tombol Save (Hanya update Biodata, BUKAN Password)
         saveButton.setOnClickListener {
             if (validateInputs()) {
-                val bundle = Bundle().apply {
-                    putString("name", nameField.text.toString())
-                    putString("email", emailField.text.toString())
-                    putString("phone", phoneField.text.toString())
-                    putString("birthdate", birthdateField.text.toString())
-                }
-                parentFragmentManager.setFragmentResult("profile_update", bundle)
-                Toast.makeText(requireContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+                val updatedUser = User(
+                    id = userId,
+                    username = nameField.text.toString().trim(),
+                    email = emailField.text.toString().trim(),
+                    phone = phoneField.text.toString().trim(),
+                    address = addressField.text.toString().trim(),
+                    birthdate = birthdateField.text.toString().trim(),
+                    role = "member"
+                )
+
+                // Update ke Firestore
+                userViewModel.updateUser(updatedUser)
+
+                Toast.makeText(context, "Profil berhasil diperbarui!", Toast.LENGTH_SHORT).show()
                 findNavController().navigateUp()
             }
         }
 
+        // Tombol Cancel
         cancelButton.setOnClickListener {
             findNavController().navigateUp()
         }
-
-        return view
     }
 
-    // DatePickerDialog untuk memilih tanggal
-    private fun showDatePickerDialog() {
+    private fun showDatePickerDialog(currentDate: String) {
         val calendar = Calendar.getInstance()
-        val dateParts = userBirthdate.split("/")
-        if (dateParts.size == 3) {
-            try {
-                calendar.set(
-                    dateParts[2].toInt(),
-                    dateParts[1].toInt() - 1,
-                    dateParts[0].toInt()
-                )
-            } catch (_: Exception) { }
+        if (currentDate.isNotEmpty()) {
+            val dateParts = currentDate.split("/")
+            if (dateParts.size == 3) {
+                try {
+                    calendar.set(dateParts[2].toInt(), dateParts[1].toInt() - 1, dateParts[0].toInt())
+                } catch (_: Exception) { }
+            }
         }
 
         val datePicker = DatePickerDialog(
@@ -111,14 +123,15 @@ class EditProfileFragment : Fragment() {
         val email = emailField.text.toString().trim()
         val phone = phoneField.text.toString().trim()
         val birthdate = birthdateField.text.toString().trim()
+        val address = addressField.text.toString().trim()
 
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailField.error = "Invalid email format"
             isValid = false
         }
 
-        if (phone.isEmpty() || !phone.matches(Regex("^[0-9]{10,12}$"))) {
-            phoneField.error = "Phone must be 10–12 digits"
+        if (phone.isEmpty() || !phone.matches(Regex("^[0-9]{10,13}$"))) {
+            phoneField.error = "Phone must be 10–13 digits"
             isValid = false
         }
 
@@ -127,10 +140,17 @@ class EditProfileFragment : Fragment() {
             isValid = false
         }
 
+        if (address.isEmpty()) {
+            addressField.error = "Address cannot be empty"
+            isValid = false
+        }
+
         if (nameField.text.isNullOrEmpty()) {
             nameField.error = "Name cannot be empty"
             isValid = false
         }
+
+        // Tidak ada validasi password di sini karena field-nya sudah dihapus
 
         return isValid
     }

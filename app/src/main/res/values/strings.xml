@@ -20,10 +20,10 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <!-- res/values/strings.xml -->
-    <string name="good_morning">Good Morning,</string>
-    <string name="good_afternoon">Good Afternoon,</string>
-    <string name="good_evening">Good Evening,</string>
-    <string name="good_night">Good Night,</string>
+    <string name="good_morning">Selamat Pagi,</string>
+    <string name="good_afternoon">Selamat Siang,</string>
+    <string name="good_evening">Selamat Sore,</string>
+    <string name="good_night">Selamat Malam,</string>
 
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>

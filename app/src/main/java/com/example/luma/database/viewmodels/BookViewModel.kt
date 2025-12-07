@@ -151,23 +151,87 @@ class BookViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // --- 6. KIRIM REVIEW (RATING) ---
-    fun submitReview(loan: Loan, rating: Float, review: String) {
+    // 1. UPDATE FUNGSI SUBMIT REVIEW (Tambah Parameter userName)
+    // Kita simpan nama user saat dia review, biar gampang nampilinnya nanti
+    fun submitReview(loan: Loan, rating: Float, review: String, userName: String) {
         _isLoading.value = true
         val loanRef = loansCollection.document(loan.id)
 
         val updates = mapOf(
             "userRating" to rating,
-            "userReview" to review
+            "userReview" to review,
+            "reviewerName" to userName // Simpan nama reviewer
         )
 
         loanRef.update(updates)
             .addOnSuccessListener {
-                _isLoading.value = false
-                _borrowStatus.value = "Terima kasih atas ulasanmu!"
+                // Hitung ulang rating setelah sukses
+                calculateAndSaveBookRating(loan.bookId)
             }
             .addOnFailureListener {
                 _isLoading.value = false
                 _borrowStatus.value = "Gagal kirim ulasan: ${it.message}"
+            }
+    }
+
+    // 2. PERBAIKAN LOGIKA HITUNG RATA-RATA (Anti-Error Index)
+    private fun calculateAndSaveBookRating(bookId: String) {
+        // Ambil SEMUA peminjaman buku ini (tanpa filter rating dulu)
+        loansCollection.whereEqualTo("bookId", bookId)
+            .get()
+            .addOnSuccessListener { documents ->
+                val ratedDocs = documents.filter {
+                    // Filter manual di sini: Ambil yang ratingnya > 0
+                    (it.getDouble("userRating") ?: 0.0) > 0.0
+                }
+
+                if (ratedDocs.isNotEmpty()) {
+                    var totalRating = 0.0
+                    for (doc in ratedDocs) {
+                        totalRating += (doc.getDouble("userRating") ?: 0.0)
+                    }
+
+                    val average = totalRating / ratedDocs.size
+                    val roundedAverage = String.format("%.1f", average).toDouble()
+
+                    // Update Buku
+                    booksCollection.document(bookId)
+                        .update("rating", roundedAverage)
+                        .addOnSuccessListener {
+                            _isLoading.value = false
+                            _borrowStatus.value = "Ulasan terkirim & Rating diperbarui!"
+                        }
+                } else {
+                    _isLoading.value = false
+                    _borrowStatus.value = "Ulasan terkirim!"
+                }
+            }
+            .addOnFailureListener {
+                _isLoading.value = false
+                _borrowStatus.value = "Gagal update rating: ${it.message}"
+            }
+    }
+
+    // 3. FUNGSI BARU: AMBIL REVIEW UNTUK DETAIL BUKU
+    private val _bookReviews = MutableLiveData<List<Loan>>()
+    val bookReviews: LiveData<List<Loan>> = _bookReviews
+
+    fun fetchBookReviews(bookId: String) {
+        // Ambil data peminjaman buku ini
+        loansCollection.whereEqualTo("bookId", bookId)
+            .get()
+            .addOnSuccessListener { documents ->
+                val reviews = mutableListOf<Loan>()
+                for (doc in documents) {
+                    val loan = doc.toObject(Loan::class.java)
+                    // Ambil cuma yang ada review-nya
+                    if (loan.userRating > 0 && loan.userReview.isNotEmpty()) {
+                        reviews.add(loan)
+                    }
+                }
+                // Urutkan (yang terbaru/rating tertinggi) dan Ambil 3 Teratas saja
+                // Karena kita ga simpan tanggal review, kita acak atau ambil apa adanya
+                _bookReviews.value = reviews.take(3)
             }
     }
 

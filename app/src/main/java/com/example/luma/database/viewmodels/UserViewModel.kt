@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.luma.database.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.EmailAuthProvider
 
 class UserViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -106,4 +107,65 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 _isLoading.value = false
             }
-    }}
+    }
+
+    // FUNGSI UPDATE DATA USER
+    fun updateUser(updatedUser: User) {
+        _isLoading.value = true
+
+        // Update data di koleksi 'users' berdasarkan UID
+        db.collection("users").document(updatedUser.id)
+            .set(updatedUser) // .set() akan menimpa data lama dengan yang baru
+            .addOnSuccessListener {
+                _isLoading.value = false
+                // Kita update juga value userResult biar UI langsung berubah
+                _userResult.value = updatedUser
+            }
+            .addOnFailureListener { e ->
+                _isLoading.value = false
+                _errorMsg.value = "Gagal update profil: ${e.message}"
+            }
+    }
+
+    // LiveData untuk status ganti password
+    private val _passwordUpdateStatus = MutableLiveData<String?>()
+    val passwordUpdateStatus: LiveData<String?> = _passwordUpdateStatus
+
+    fun changePassword(oldPass: String, newPass: String) {
+        _isLoading.value = true
+        val user = auth.currentUser
+
+        if (user != null && user.email != null) {
+            // 1. BIKIN KREDENSIAL DARI EMAIL & PASSWORD LAMA
+            val credential = EmailAuthProvider.getCredential(user.email!!, oldPass)
+
+            // 2. RE-AUTENTIKASI (Login ulang di background)
+            user.reauthenticate(credential)
+                .addOnSuccessListener {
+                    // Jika password lama benar, baru kita update ke password baru
+                    user.updatePassword(newPass)
+                        .addOnSuccessListener {
+                            _isLoading.value = false
+                            _passwordUpdateStatus.value = "Password berhasil diganti!"
+                        }
+                        .addOnFailureListener { e ->
+                            _isLoading.value = false
+                            _passwordUpdateStatus.value = "Gagal update: ${e.message}"
+                        }
+                }
+                .addOnFailureListener { e ->
+                    // Biasanya gagal di sini kalau Password Lama salah
+                    _isLoading.value = false
+                    _passwordUpdateStatus.value = "Password lama salah!"
+                }
+        } else {
+            _isLoading.value = false
+            _passwordUpdateStatus.value = "User tidak ditemukan"
+        }
+    }
+
+    // Reset status biar toast gak muncul terus
+    fun resetPasswordStatus() {
+        _passwordUpdateStatus.value = null
+    }
+}
