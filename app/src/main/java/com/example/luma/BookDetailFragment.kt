@@ -24,26 +24,33 @@ class BookDetailFragment : Fragment() {
     private lateinit var bookViewModel: BookViewModel
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return inflater.inflate(R.layout.fragment_book_detail, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // --- 1. AMBIL DATA DARI ARGUMENT ---
+        // =============================
+        // 1. AMBIL DATA BUKU
+        // =============================
         @Suppress("DEPRECATION")
         currentBook = arguments?.getParcelable("selectedBook") ?: run {
             findNavController().navigateUp()
             return
         }
 
-        // --- 2. INIT VIEWMODEL ---
+        // =============================
+        // 2. INIT VIEWMODEL
+        // =============================
         bookViewModel = ViewModelProvider(requireActivity())[BookViewModel::class.java]
 
-        // --- 3. HUBUNGKAN VIEW (FIXED ID) ---
+        // =============================
+        // 3. HUBUNGKAN VIEW
+        // =============================
         val ivCover = view.findViewById<ImageView>(R.id.iv_book_cover)
         val tvTitle = view.findViewById<TextView>(R.id.tv_book_title)
         val tvAuthor = view.findViewById<TextView>(R.id.tv_book_author)
@@ -52,23 +59,22 @@ class BookDetailFragment : Fragment() {
         val chipCategory = view.findViewById<TextView>(R.id.tv_book_category)
         val chipStock = view.findViewById<TextView>(R.id.tv_book_stock)
 
-        // PERBAIKAN DI SINI:
-        // Ganti R.id.rv_reviews menjadi R.id.tv_rating_value (sesuai XML kamu)
         val tvRatingValue = view.findViewById<TextView>(R.id.tv_rating_value)
         val ratingBar = view.findViewById<android.widget.RatingBar>(R.id.rating_bar)
 
-        val btnBack = view.findViewById<View>(R.id.btn_back)
         val btnBorrow = view.findViewById<Button>(R.id.btn_borrow)
+        val btnBack = view.findViewById<View>(R.id.btn_back)
 
-        // --- 4. ISI DATA KE TAMPILAN ---
+        // =============================
+        // 4. ISI DATA KE UI
+        // =============================
         tvTitle.text = currentBook.title
         tvAuthor.text = currentBook.author
         tvSynopsis.text = currentBook.synopsis
         chipCategory.text = currentBook.category
         chipStock.text = "Stock: ${currentBook.stock}"
 
-        // Set Rating (Text dan Bintang)
-        tvRatingValue.text = "${currentBook.rating}"
+        tvRatingValue.text = currentBook.rating.toString()
         ratingBar.rating = currentBook.rating.toFloat()
 
         if (currentBook.imagePath.isNullOrEmpty()) {
@@ -77,61 +83,96 @@ class BookDetailFragment : Fragment() {
             Glide.with(this).load(currentBook.imagePath).into(ivCover)
         }
 
+        // =============================
+        // 5. LOGIKA AWAL TOMBOL PINJAM
+        // =============================
+        if (currentBook.stock <= 0) {
+            btnBorrow.isEnabled = false
+            btnBorrow.isClickable = false
+            btnBorrow.text = "Out of Stock"
+            btnBorrow.alpha = 0.5f
+        } else {
+            btnBorrow.isEnabled = true
+            btnBorrow.isClickable = true
+            btnBorrow.text = "Pinjam"
+            btnBorrow.alpha = 1f
+        }
+
+        // =============================
+        // 6. REVIEW SECTION
+        // =============================
         val rvReviews = view.findViewById<RecyclerView>(R.id.rv_reviews)
-        val tvNoReviews = view.findViewById<TextView>(R.id.tv_no_reviews) // <-- ID Baru
+        val tvNoReviews = view.findViewById<TextView>(R.id.tv_no_reviews)
 
-        if (rvReviews != null) {
-            rvReviews.layoutManager = LinearLayoutManager(context)
-            val reviewAdapter = ReviewAdapter(emptyList())
-            rvReviews.adapter = reviewAdapter
+        rvReviews.layoutManager = LinearLayoutManager(requireContext())
+        val reviewAdapter = ReviewAdapter(emptyList())
+        rvReviews.adapter = reviewAdapter
 
-            bookViewModel.fetchBookReviews(currentBook.id)
-
-            bookViewModel.bookReviews.observe(viewLifecycleOwner) { reviews ->
-                if (reviews.isNotEmpty()) {
-                    // ADA REVIEW
-                    rvReviews.visibility = View.VISIBLE
-                    tvNoReviews.visibility = View.GONE
-                    reviewAdapter.updateData(reviews)
-                } else {
-                    // KOSONG
-                    rvReviews.visibility = View.GONE
-                    tvNoReviews.visibility = View.VISIBLE
-                }
+        bookViewModel.fetchBookReviews(currentBook.id)
+        bookViewModel.bookReviews.observe(viewLifecycleOwner) { reviews ->
+            if (reviews.isNotEmpty()) {
+                rvReviews.visibility = View.VISIBLE
+                tvNoReviews.visibility = View.GONE
+                reviewAdapter.updateData(reviews)
+            } else {
+                rvReviews.visibility = View.GONE
+                tvNoReviews.visibility = View.VISIBLE
             }
         }
 
-        // --- 6. LOGIKA TOMBOL ---
+        // =============================
+        // 7. CLICK PINJAM (DOUBLE SAFETY)
+        // =============================
         btnBorrow.setOnClickListener {
             if (currentBook.stock <= 0) {
-                Toast.makeText(requireContext(), "Yah, stok buku habis!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Yah, stok buku habis!",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
-            val sharedPref = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+            val sharedPref =
+                requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
             val username = sharedPref.getString("username", null)
 
-            if (username != null) {
-                bookViewModel.borrowBook(currentBook, username)
-            } else {
-                Toast.makeText(requireContext(), "Silakan login ulang!", Toast.LENGTH_SHORT).show()
+            if (username == null) {
+                Toast.makeText(
+                    requireContext(),
+                    "Silakan login ulang!",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
             }
+
+            bookViewModel.borrowBook(currentBook, username)
         }
 
+        // =============================
+        // 8. TOMBOL KEMBALI
+        // =============================
         btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
-        // --- 7. OBSERVASI STATUS PINJAM ---
+        // =============================
+        // 9. OBSERVASI HASIL PINJAM
+        // =============================
         bookViewModel.borrowStatus.observe(viewLifecycleOwner) { message ->
             if (message != null) {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
 
                 if (message.contains("Berhasil")) {
+                    currentBook = currentBook.copy(stock = currentBook.stock - 1)
+
+                    chipStock.text = "Stock: ${currentBook.stock}"
                     btnBorrow.isEnabled = false
+                    btnBorrow.isClickable = false
                     btnBorrow.text = "Buku Dipinjam"
-                    chipStock.text = "Stock: ${currentBook.stock - 1}"
+                    btnBorrow.alpha = 0.5f
                 }
+
                 bookViewModel.resetBorrowStatus()
             }
         }

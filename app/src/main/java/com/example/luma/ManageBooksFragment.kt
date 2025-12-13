@@ -12,18 +12,63 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.luma.database.Book
 import com.google.firebase.firestore.FirebaseFirestore
+import android.widget.Spinner
+import android.widget.ArrayAdapter
+import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
 
 class ManageBooksFragment : Fragment() {
-
+    private var selectedImageUri: Uri? = null
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: BookAdminAdapter
     private lateinit var addButton: Button
 
     private val books = mutableListOf<BookLocal>()
     private val db = FirebaseFirestore.getInstance().collection("books")
+
+    private val pickImageLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null) {
+                selectedImageUri = uri
+                Toast.makeText(requireContext(), "Image selected", Toast.LENGTH_SHORT).show()
+            }
+        }
+    private fun getBookCategories(): Array<String> {
+        return arrayOf(
+            "Choose category",
+
+            // Fiksi
+            "Fiksi","Novel","Cerpen","Puisi","Drama","Fantasi","Fiksi Ilmiah",
+            "Horor","Misteri","Thriller","Romantis","Petualangan",
+
+            // Non-Fiksi
+            "Non-Fiksi","Biografi","Autobiografi","Memoar","Esai","Jurnal",
+
+            // Pendidikan
+            "Pendidikan","Buku Pelajaran","Referensi","Kamus","Ensiklopedia",
+            "Akademik","Ilmiah",
+
+            // Anak
+            "Anak","Remaja","Dongeng","Komik","Buku Bergambar",
+
+            // Sosial
+            "Sejarah","Budaya","Sosiologi","Psikologi","Filsafat","Agama","Politik",
+
+            // Teknologi
+            "Teknologi","Komputer","Pemrograman","Sains","Matematika",
+            "Fisika","Biologi","Kimia",
+
+            // Bisnis
+            "Ekonomi","Bisnis","Manajemen","Keuangan","Kewirausahaan",
+            "Pengembangan Diri","Motivasi",
+
+            // Lainnya
+            "Kesehatan","Olahraga","Kuliner","Travel","Seni","Musik",
+            "Fotografi","Hukum","Lingkungan","Pertanian","Teknik","Umum"
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,7 +115,8 @@ class ManageBooksFragment : Fragment() {
                                 id = doc.id,
                                 title = book.title,
                                 category = book.category,
-                                imageUrl = book.imagePath
+                                imageUrl = book.imagePath,
+                                stock = book.stock
                             )
                         )
                     }
@@ -88,6 +134,7 @@ class ManageBooksFragment : Fragment() {
             putString("title", book.title)
             putString("category", book.category)
             putString("imageUrl", book.imageUrl)
+            putInt("stock", book.stock)
             putString("description", "No Description")
         }
         findNavController().navigate(R.id.action_booksFragment_to_bookDetailFragment, bundle)
@@ -97,11 +144,31 @@ class ManageBooksFragment : Fragment() {
     // ADD BOOK
     // =========================================================
     private fun showAddForm() {
+        selectedImageUri = null
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_book, null)
         val etTitle = dialogView.findViewById<EditText>(R.id.etTitle)
         val etAuthor = dialogView.findViewById<EditText>(R.id.etAuthor)
-        val etCategory = dialogView.findViewById<EditText>(R.id.etCategory)
-        val etCover = dialogView.findViewById<EditText>(R.id.etCoverUrl)
+        val spinnerCategory = dialogView.findViewById<Spinner>(R.id.spinnerCategory)
+
+        val categories = getBookCategories()
+
+        val adapterCategory = object : ArrayAdapter<String>(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            categories
+        ) {
+            override fun isEnabled(position: Int): Boolean {
+                return position != 0 // disable "Choose category"
+            }
+        }
+
+        adapterCategory.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerCategory.adapter = adapterCategory
+
+        val btnChooseImage = dialogView.findViewById<Button>(R.id.btnChooseImage)
+        btnChooseImage.setOnClickListener {
+            pickImageLauncher.launch("image/*")
+        }
 
         AlertDialog.Builder(requireContext())
             .setTitle("Add New Book")
@@ -109,11 +176,27 @@ class ManageBooksFragment : Fragment() {
             .setPositiveButton("Add") { _, _ ->
                 val title = etTitle.text.toString()
                 val author = etAuthor.text.toString()
-                val category = etCategory.text.toString()
-                val cover = etCover.text.toString()
+                val category = spinnerCategory.selectedItem.toString()
 
-                if (title.isEmpty() || author.isEmpty() || category.isEmpty()) {
-                    Toast.makeText(requireContext(), "All fields must be filled", Toast.LENGTH_SHORT).show()
+                if (
+                    title.isEmpty() ||
+                    author.isEmpty() ||
+                    spinnerCategory.selectedItemPosition == 0
+                ) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Please fill all fields and choose category",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setPositiveButton
+                }
+
+                if (selectedImageUri == null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Please choose a cover image",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@setPositiveButton
                 }
 
@@ -125,7 +208,7 @@ class ManageBooksFragment : Fragment() {
                     synopsis = "",
                     stock = 5,
                     rating = 0.0,
-                    imagePath = cover
+                    imagePath = ""
                 )
 
                 db.add(newBook).addOnSuccessListener {
@@ -143,13 +226,23 @@ class ManageBooksFragment : Fragment() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_book, null)
         val etTitle = dialogView.findViewById<EditText>(R.id.etTitle)
         val etAuthor = dialogView.findViewById<EditText>(R.id.etAuthor)
-        val etCategory = dialogView.findViewById<EditText>(R.id.etCategory)
-        val etCover = dialogView.findViewById<EditText>(R.id.etCoverUrl)
+        val spinnerCategory = dialogView.findViewById<Spinner>(R.id.spinnerCategory)
+
+        val categories = getBookCategories()
+
+        val adapterCategory = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            categories
+        )
+        adapterCategory.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerCategory.adapter = adapterCategory
 
         etTitle.setText(book.title)
         etAuthor.setText("")
-        etCategory.setText(book.category)
-        etCover.setText(book.imageUrl)
+        val index = categories.indexOf(book.category)
+        if (index >= 0) spinnerCategory.setSelection(index)
+        else spinnerCategory.setSelection(0)
 
         AlertDialog.Builder(requireContext())
             .setTitle("Edit Book")
@@ -158,8 +251,7 @@ class ManageBooksFragment : Fragment() {
                 db.document(book.id).update(
                     mapOf(
                         "title" to etTitle.text.toString(),
-                        "category" to etCategory.text.toString(),
-                        "imagePath" to etCover.text.toString()
+                        "category" to spinnerCategory.selectedItem.toString(),
                     )
                 ).addOnSuccessListener {
                     Toast.makeText(requireContext(), "Book Updated!", Toast.LENGTH_SHORT).show()
@@ -195,6 +287,7 @@ class ManageBooksFragment : Fragment() {
         val id: String = "",
         val title: String = "",
         val category: String = "",
-        val imageUrl: String = ""
+        val imageUrl: String = "",
+        val stock: Int = 0
     )
 }

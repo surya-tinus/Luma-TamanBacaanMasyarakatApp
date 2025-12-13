@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import android.widget.Spinner
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import com.example.luma.model.Book
 
@@ -15,12 +17,12 @@ class AddBookFragment : Fragment() {
 
     private lateinit var etTitle: EditText
     private lateinit var etAuthor: EditText
-    private lateinit var etCategory: EditText
     private lateinit var etStock: EditText
     private lateinit var etCover: EditText
     private lateinit var etDescription: EditText
     private lateinit var btnSave: Button
     private lateinit var btnCancel: Button
+    private lateinit var spinnerCategory: Spinner
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_add_book, container, false)
@@ -29,19 +31,36 @@ class AddBookFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         etTitle = view.findViewById(R.id.etTitle)
         etAuthor = view.findViewById(R.id.etAuthor)
-        etCategory = view.findViewById(R.id.etCategory)
+        spinnerCategory = view.findViewById(R.id.spinnerCategory)
         etStock = view.findViewById(R.id.etStock)
         etCover = view.findViewById(R.id.etCover)
         etDescription = view.findViewById(R.id.etDescription)
         btnSave = view.findViewById(R.id.btnSaveBook)
         btnCancel = view.findViewById(R.id.btnCancelBook)
 
+        val categories = arrayOf(
+            "Fiksi",
+            "Non-Fiksi",
+            "Pendidikan",
+            "Anak",
+            "Sejarah"
+        )
+
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            categories
+        )
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerCategory.adapter = adapter
+
         btnSave.setOnClickListener {
             if (validateFields()) {
                 // Build Book object (stock ignored in Book model for now)
                 val book = Book(
                     title = etTitle.text.toString().trim(),
-                    category = etCategory.text.toString().trim(),
+                    category = spinnerCategory.selectedItem.toString(),
                     imageUrl = etCover.text.toString().trim(),
                     description = etDescription.text.toString().trim()
                 )
@@ -66,16 +85,13 @@ class AddBookFragment : Fragment() {
 
     private fun validateFields(): Boolean {
         var ok = true
+        val category = spinnerCategory.selectedItem.toString()
         if (TextUtils.isEmpty(etTitle.text.toString().trim())) {
             etTitle.error = "Title required"
             ok = false
         }
         if (TextUtils.isEmpty(etAuthor.text.toString().trim())) {
             etAuthor.error = "Author required"
-            ok = false
-        }
-        if (TextUtils.isEmpty(etCategory.text.toString().trim())) {
-            etCategory.error = "Category required"
             ok = false
         }
         if (TextUtils.isEmpty(etStock.text.toString().trim())) {
