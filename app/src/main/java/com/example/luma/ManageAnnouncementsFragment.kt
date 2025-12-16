@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -13,12 +12,17 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.navigation.fragment.findNavController
 import com.example.luma.database.Announcement
 import com.example.luma.database.viewmodels.AnnouncementViewModel
+// Import baru untuk FloatingActionButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class ManageAnnouncementsFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
-    private lateinit var btnAdd: Button
+
+    // PERUBAHAN UTAMA: Tipe variabel diubah dari Button ke FloatingActionButton
+    private lateinit var btnAdd: FloatingActionButton
+
     private lateinit var adapter: AnnouncementAdapter
 
     private val viewModel: AnnouncementViewModel by viewModels()
@@ -31,9 +35,12 @@ class ManageAnnouncementsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState) // Best practice tambahkan super
 
         recyclerView = view.findViewById(R.id.rvAdminAnnouncements)
         progressBar = view.findViewById(R.id.progressAnnouncement)
+
+        // Sekarang ini tidak akan error lagi karena tipe variabel sudah sesuai dengan XML
         btnAdd = view.findViewById(R.id.btnAddAnnouncement)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())

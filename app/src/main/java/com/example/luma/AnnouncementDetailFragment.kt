@@ -4,7 +4,9 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.luma.database.Announcement
@@ -14,7 +16,8 @@ import java.util.*
 
 class AnnouncementDetailFragment : Fragment() {
 
-    private lateinit var announcement: Announcement
+    private lateinit var announcementId: String // Kita simpan ID-nya aja
+    private lateinit var currentAnnouncement: Announcement // Data terbaru
     private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
@@ -24,45 +27,73 @@ class AnnouncementDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        announcement = requireArguments().getParcelable("announcement")!!
+        // Ambil data awal dari arguments
+        val initialData = requireArguments().getParcelable<Announcement>("announcement")!!
+        announcementId = initialData.id
+        currentAnnouncement = initialData
 
         val tvTitle = view.findViewById<TextView>(R.id.tvDetailTitle)
         val tvDate = view.findViewById<TextView>(R.id.tvDetailDate)
         val tvContent = view.findViewById<TextView>(R.id.tvDetailContent)
         val btnEdit = view.findViewById<Button>(R.id.btnEdit)
         val btnDelete = view.findViewById<Button>(R.id.btnDelete)
+        val btnBack = view.findViewById<ImageView>(R.id.btnBack) // Opsional kalau ada
 
-        tvTitle.text = announcement.title
-        tvContent.text = announcement.content
+        // Tampilkan data awal dulu biar gak kosong
+        updateUI(tvTitle, tvDate, tvContent, initialData)
 
-        val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
-        tvDate.text = sdf.format(announcement.date)
+        // --- SOLUSI: DENGARKAN PERUBAHAN DATA (REAL-TIME) ---
+        db.collection("announcements").document(announcementId)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) return@addSnapshotListener
+
+                if (snapshot != null && snapshot.exists()) {
+                    // Data berubah di server? Ambil yang baru!
+                    val freshAnnouncement = snapshot.toObject(Announcement::class.java)
+                    if (freshAnnouncement != null) {
+                        // KITA SET ID MANUAL KARENA toObject KADANG GAK BAWA ID
+                        val fixedData = freshAnnouncement.copy(id = snapshot.id)
+                        currentAnnouncement = fixedData
+
+                        // Update tampilan
+                        updateUI(tvTitle, tvDate, tvContent, fixedData)
+                    }
+                }
+            }
 
         btnEdit.setOnClickListener {
             val bundle = Bundle().apply {
-                putParcelable("announcement", announcement)
+                putParcelable("announcement", currentAnnouncement) // Kirim data TERBARU
             }
             findNavController().navigate(R.id.action_announcementDetail_to_editAnnouncement, bundle)
         }
 
-        btnDelete.setOnClickListener {
-            confirmDelete()
-        }
+        btnDelete.setOnClickListener { confirmDelete() }
+
+        // Kalau tombol back ditekan
+        btnBack?.setOnClickListener { findNavController().popBackStack() }
+    }
+
+    private fun updateUI(tvTitle: TextView, tvDate: TextView, tvContent: TextView, data: Announcement) {
+        tvTitle.text = data.title
+        tvContent.text = data.content
+        val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+        tvDate.text = sdf.format(data.date)
     }
 
     private fun confirmDelete() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Delete Announcement")
-            .setMessage("Are you sure you want to delete this announcement?")
-            .setPositiveButton("Delete") { _, _ ->
-                db.collection("announcements")
-                    .document(announcement.id)
+            .setTitle("Hapus Pengumuman")
+            .setMessage("Yakin ingin menghapus pengumuman ini?")
+            .setPositiveButton("Hapus") { _, _ ->
+                db.collection("announcements").document(announcementId)
                     .delete()
                     .addOnSuccessListener {
+                        Toast.makeText(context, "Berhasil dihapus", Toast.LENGTH_SHORT).show()
                         findNavController().popBackStack()
                     }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("Batal", null)
             .show()
     }
 }

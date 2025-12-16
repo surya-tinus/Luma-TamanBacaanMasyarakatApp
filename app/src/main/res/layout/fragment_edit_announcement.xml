@@ -1,40 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="24dp"
+    android:background="#FFFFFF">
 
-    <EditText
-        android:id="@+id/etEditTitle"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit Pengumuman"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#233d18"
+        android:layout_marginBottom="24dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Edit Title" />
+        android:hint="Judul Pengumuman"
+        android:layout_marginBottom="16dp">
 
-    <EditText
-        android:id="@+id/etEditContent"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etEditTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Edit Content"
-        android:minLines="5"
-        android:gravity="top"
-        android:layout_marginTop="12dp"/>
+        android:hint="Tanggal"
+        app:startIconDrawable="@android:drawable/ic_menu_my_calendar"
+        android:layout_marginBottom="16dp">
 
-    <!-- FIELD TANGGAL -->
-    <EditText
-        android:id="@+id/etEditDate"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etEditDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:focusable="false"
-        android:clickable="true"
-        android:hint="Select Date"
-        android:layout_marginTop="12dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:hint="Isi Pengumuman"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etEditContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="top"
+            android:inputType="textMultiLine"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btnUpdateAnnouncement"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Update Announcement"
-        android:layout_marginTop="16dp"/>
+        android:layout_height="56dp"
+        android:text="Simpan Perubahan"
+        android:backgroundTint="#677e5d"
+        android:textStyle="bold"/>
 
 </LinearLayout>
