@@ -45,9 +45,15 @@ class ManageAnnouncementsFragment : Fragment() {
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        adapter = AnnouncementAdapter(emptyList()) { clickedItem ->
-            openAnnouncementDetail(clickedItem)
-        }
+        // Di dalam ManageAnnouncementsFragment.kt
+
+        adapter = AnnouncementAdapter(
+            list = emptyList(),
+            isAdmin = true, // SET TRUE KHUSUS DISINI
+            onClick = { clickedItem ->
+                openAnnouncementDetail(clickedItem)
+            }
+        )
 
         recyclerView.adapter = adapter
 

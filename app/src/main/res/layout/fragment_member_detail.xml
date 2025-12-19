@@ -1,106 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="#FFFFFF">
+    android:paddingTop="32dp"
+    android:background="#fff9f9">
 
-    <TextView
-        android:id="@+id/tvDetailName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nama Member"
-        android:textStyle="bold"
-        android:textSize="22sp"
-        android:textColor="#233d18"
-        android:layout_marginBottom="4dp"/>
-
-    <TextView
-        android:id="@+id/tvDetailEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="email@example.com"
-        android:textColor="#555"
-        android:layout_marginBottom="4dp"/>
-
-    <TextView
-        android:id="@+id/tvDetailRole"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Role: Member"
-        android:textColor="#555"
-        android:layout_marginBottom="4dp"/>
-
-    <TextView
-        android:id="@+id/tvDetailPhone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No. HP: -"
-        android:textColor="#555"
-        android:layout_marginBottom="16dp"/>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cvActiveStatus"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/headerContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="#E8F5E9"
-        android:layout_marginBottom="24dp">
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingHorizontal="16dp"
+        android:background="#fff9f9"
+        android:elevation="2dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btnBackMember"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_back"
+            app:tint="#233d18"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Detail Anggota"
+            android:textSize="18sp"
+            android:fontFamily="@font/poppins_bold"
+            android:textStyle="bold"
+            android:textColor="#233d18"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@id/btnBackMember"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/headerContainer"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:gravity="center">
+            android:padding="24dp">
 
             <TextView
-                android:id="@+id/tvActiveTitle"
+                android:id="@+id/tvDetailName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Status Peminjaman"
-                android:textSize="14sp"
-                android:textColor="#233d18"/>
-
-            <TextView
-                android:id="@+id/tvActiveCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Aman (0 Buku)"
-                android:textSize="20sp"
+                tools:text="Nama Member"
+                android:fontFamily="@font/poppins_bold"
                 android:textStyle="bold"
+                android:textSize="22sp"
                 android:textColor="#233d18"
-                android:layout_marginTop="4dp"/>
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tvDetailEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="email@example.com"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#555"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tvDetailRole"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Role: Member"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#555"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tvDetailPhone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="No. HP: 08123456789"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#555"
+                android:layout_marginBottom="24dp"/>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvActiveStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#E8F5E9"
+                android:layout_marginBottom="32dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/tvActiveTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Status Peminjaman"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textSize="14sp"
+                        android:textColor="#233d18"/>
+
+                    <TextView
+                        android:id="@+id/tvActiveCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Aman (0 Buku)"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#233d18"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Riwayat Peminjaman Buku"
+                android:fontFamily="@font/poppins_bold"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#233d18"
+                android:layout_marginBottom="12dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMemberHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:background="@drawable/bg_card"
+                android:layout_marginBottom="16dp"/>
+
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </androidx.core.widget.NestedScrollView>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Riwayat Peminjaman Buku"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:textColor="#233d18"
-        android:layout_marginBottom="8dp"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvMemberHistory"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#F9F9F9"
-        android:layout_marginBottom="16dp"/>
-
-    <Button
-        android:id="@+id/btnBackMember"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Kembali"
-        android:textStyle="bold"
-        android:backgroundTint="#677e5d"
-        android:textColor="@android:color/white"/>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

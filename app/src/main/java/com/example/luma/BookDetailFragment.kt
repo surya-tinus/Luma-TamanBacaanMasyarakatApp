@@ -121,31 +121,47 @@ class BookDetailFragment : Fragment() {
         }
 
         // =============================
-        // 7. CLICK PINJAM (DOUBLE SAFETY)
-        // =============================
+// 7. CLICK PINJAM (DOUBLE SAFETY + NOTIFICATION)
+// =============================
         btnBorrow.setOnClickListener {
+            // Cek Stok
             if (currentBook.stock <= 0) {
-                Toast.makeText(
-                    requireContext(),
-                    "Yah, stok buku habis!",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Yah, stok buku habis!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val sharedPref =
-                requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+            // Cek User Login
+            val sharedPref = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
             val username = sharedPref.getString("username", null)
 
             if (username == null) {
-                Toast.makeText(
-                    requireContext(),
-                    "Silakan login ulang!",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Silakan login ulang!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // ========================================================
+            // FITUR NATIVE: LOCAL NOTIFICATION (ALARM MANAGER)
+            // ========================================================
+            // Skenario: Kita set pengingat 5 detik dari sekarang untuk demo.
+            // Nanti bisa diganti 7 hari (masa pinjam) untuk production.
+            val triggerTime = java.util.Calendar.getInstance().apply {
+                add(java.util.Calendar.SECOND, 5)
+            }.timeInMillis
+
+            // Gunakan ID unik untuk tiap buku (misal hashCode dari judul)
+            // supaya notifikasi buku A tidak menimpa notifikasi buku B
+            val uniqueId = currentBook.title.hashCode()
+
+            com.example.luma.utils.AlarmScheduler.scheduleNotification(
+                context = requireContext(),
+                timeInMillis = triggerTime,
+                title = "Pengingat Pengembalian",
+                message = "Jangan lupa kembalikan buku '${currentBook.title}' ya!",
+                reqCode = uniqueId
+            )
+            // ========================================================
+
+            // Lanjut proses pinjam ke database
             bookViewModel.borrowBook(currentBook, username)
         }
 

@@ -1,54 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:gravity="center_vertical">
-
+    android:gravity="center"
+    android:padding="16dp"
+    android:background="@android:color/transparent">
     <TextView
-    android:id="@+id/tvAnnounceDate"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="NEW"
-    android:textSize="10sp"
-    android:textStyle="bold"
-    android:textColor="@color/white"
-    android:background="@drawable/bg_card"
-    android:backgroundTint="#FF5722"
-    android:paddingHorizontal="8dp"
-    android:paddingVertical="2dp"
-    android:layout_marginBottom="8dp"/>
+        android:id="@+id/tvAnnounceDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NEW • 17 Dec"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="#FF5722"
+        android:letterSpacing="0.1"
+        android:layout_marginBottom="8dp"/>
 
     <TextView
         android:id="@+id/tvAnnounceTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Judul Pengumuman"
-        android:textSize="16sp"
+        android:gravity="center"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#333333"/>
+        android:textColor="#233d18"
+        android:maxLines="2"
+        android:ellipsize="end"/>
 
     <TextView
         android:id="@+id/tvAnnounceContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Deskripsi singkat pengumuman..."
+        android:text="Klik untuk membaca selengkapnya..."
+        android:gravity="center"
         android:textSize="14sp"
         android:textColor="#666666"
-        android:maxLines="3"
+        android:maxLines="2"
         android:ellipsize="end"
-        android:layout_marginTop="4dp"/>
+        android:layout_marginTop="6dp"/>
 
     <TextView
         android:id="@+id/tvAnnounceTime"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Waktu"
-        android:textSize="14sp"
-        android:textColor="#666666"
-        android:maxLines="3"
-        android:ellipsize="end"
-        android:layout_marginTop="4dp"/>
+        android:visibility="gone"/>
 
 </LinearLayout>

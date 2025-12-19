@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#fff9f9"
     android:padding="24dp">
 
     <LinearLayout
@@ -11,10 +11,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="48dp"
-        android:gravity="center_horizontal"
-        android:spacing="16dp">
+        android:gravity="center_horizontal">
 
-        <!-- Admin Icon -->
         <ImageView
             android:id="@+id/imgAdminIcon"
             android:layout_width="120dp"
@@ -22,20 +20,18 @@
             android:src="@drawable/ic_user"
             android:background="@drawable/bg_circle"
             android:padding="16dp"
-            app:tint="@color/black" />
+            app:tint="#233d18" />
 
-        <!-- Nama -->
         <TextView
             android:id="@+id/tvAdminName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Jane Doe"
+            android:text="Loading..."
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginTop="12dp"
-            android:textColor="@color/black" />
+            android:textColor="#233d18" />
 
-        <!-- Info Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -49,77 +45,90 @@
                 android:layout_height="wrap_content"
                 android:text="Email"
                 android:textStyle="bold"
-                android:textColor="@color/black" />
+                android:textColor="#233d18" />
 
             <TextView
                 android:id="@+id/tvAdminEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="janedoe@example.com"
-                android:layout_marginBottom="16dp" />
+                android:text="..."
+                android:layout_marginBottom="16dp"
+                android:textColor="#424242"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Phone"
+                android:text="Nomor Telpon"
                 android:textStyle="bold"
-                android:textColor="@color/black" />
+                android:textColor="#233d18" />
 
             <TextView
                 android:id="@+id/tvAdminPhone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0812-3456-7890"
-                android:layout_marginBottom="16dp" />
+                android:text="..."
+                android:layout_marginBottom="16dp"
+                android:textColor="#424242"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Address"
+                android:text="Alamat"
                 android:textStyle="bold"
-                android:textColor="@color/black" />
+                android:textColor="#233d18" />
 
             <TextView
                 android:id="@+id/tvAdminAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Taman Bacaan Kelurahan Curug Sangereng"
-                android:layout_marginBottom="16dp" />
+                android:text="..."
+                android:layout_marginBottom="16dp"
+                android:textColor="#424242"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Birthdate"
+                android:text="Tanggal Lahir"
                 android:textStyle="bold"
-                android:textColor="@color/black" />
+                android:textColor="#233d18" />
 
             <TextView
                 android:id="@+id/tvAdminBirthdate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="22 January 1999" />
+                android:text="..."
+                android:textColor="#424242"/>
         </LinearLayout>
 
-        <!-- Tombol Edit Profile -->
         <Button
             android:id="@+id/btnEditProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Edit Profile"
+            android:text="Edit Profil"
             android:layout_marginTop="24dp"
-            android:backgroundTint="#CDEB8B"
-            android:textColor="@color/black"
+            android:backgroundTint="#677e5d"
+            android:textColor="@color/white"
             android:drawableStart="@drawable/ic_edit"
             android:drawablePadding="8dp" />
 
-        <!-- Tombol Logout -->
+        <Button
+            android:id="@+id/btnChangePass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ganti Password"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#FF9800"
+            android:textColor="@color/white"
+            android:drawableStart="@drawable/ic_lock"
+            android:drawablePadding="8dp"/>
+
         <Button
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Logout"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@android:color/holo_red_light"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#ff5757"
             android:textColor="@color/white"
             android:drawableStart="@drawable/ic_back"
             android:drawablePadding="8dp" />

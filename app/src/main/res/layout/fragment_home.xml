@@ -1,464 +1,255 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
-
-    xmlns:android="http://schemas.android.com/apk/res/android"
-
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     xmlns:tools="http://schemas.android.com/tools"
-
     android:layout_width="match_parent"
-
     android:layout_height="match_parent"
-
     android:background="#F2F2F2"
-
     android:fillViewport="true"
-
     tools:context=".HomeFragment">
 
-
-
     <LinearLayout
-
         android:layout_width="match_parent"
-
         android:layout_height="wrap_content"
-
         android:orientation="vertical">
-
-
 
         <RelativeLayout
 
             android:layout_width="match_parent"
-
             android:layout_height="wrap_content">
 
-
-
             <ImageView
-
                 android:layout_width="match_parent"
-
-                android:layout_height="125dp"
-
+                android:layout_height="70dp"
+                android:contentDescription="Header Wave"
                 android:scaleType="fitXY"
-
-                android:src="@drawable/ic_wave_header"
-
-                android:contentDescription="Header Wave" />
-
-
+                android:src="@drawable/ic_wave_header" />
 
             <LinearLayout
-
                 android:layout_width="match_parent"
-
                 android:layout_height="wrap_content"
-
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
-
-                android:paddingTop="32dp"
-
-                android:paddingBottom="60dp"
-
                 android:paddingStart="24dp"
-
+                android:paddingTop="32dp"
                 android:paddingEnd="24dp"
-
-                android:gravity="center_vertical">
-
-
+                android:paddingBottom="0dp">
 
                 <LinearLayout
-
                     android:layout_width="0dp"
-
                     android:layout_height="wrap_content"
-
                     android:layout_weight="1"
-
                     android:orientation="vertical">
 
-
-
                     <TextView
-
                         android:id="@+id/tv_greeting"
-
                         android:layout_width="wrap_content"
-
                         android:layout_height="wrap_content"
-
-                        android:text="Good Evening,"
-
-                        android:textStyle="bold"
-
                         android:fontFamily="@font/poppins_bold"
-
+                        android:textColor="@color/black"
                         android:textSize="20sp"
-
-                        android:textColor="@color/black" />
-
-
+                        android:textStyle="bold" />
 
                     <TextView
-
                         android:id="@+id/username_greeting"
-
                         android:layout_width="wrap_content"
-
                         android:layout_height="wrap_content"
-
-                        android:text="User123456"
-
                         android:fontFamily="@font/poppins_bold"
-
+                        android:text="User123456"
                         android:textColor="#6BBF59"
-
                         android:textSize="20sp" />
 
                 </LinearLayout>
 
-
-
                 <ImageView
-
-                    android:layout_width="95dp"
-
-                    android:layout_height="130dp"
-
-                    android:src="@drawable/library"
-
+                    android:id="@+id/iv_header_illustration"
+                    android:layout_width="170dp"
+                    android:layout_height="150dp"
+                    android:layout_marginStart="8dp"
                     android:contentDescription="@string/app_name"
-
-                    android:layout_marginStart="8dp" />
+                    android:src="@drawable/library" />
 
             </LinearLayout>
 
         </RelativeLayout>
 
 
-
         <LinearLayout
-
             android:layout_width="match_parent"
-
             android:layout_height="wrap_content"
-
-            android:orientation="vertical"
-
+            android:layout_marginTop="-40dp"
             android:background="@drawable/bg_section"
-
-            android:layout_marginTop="-50dp"
-
-            android:elevation="3dp"
-
-            android:paddingHorizontal="24dp"
-
-            android:paddingTop="24dp"
-
-            android:paddingBottom="100dp"
-
-            android:gravity="center_horizontal">
-
-
+            android:orientation="vertical"
+            android:paddingTop="32dp"
+            android:paddingBottom="100dp">
 
             <TextView
-
-                android:text="Info Taman Bacaan"
-
-                android:textStyle="bold"
-
-                android:fontFamily="@font/poppins_bold"
-
-                android:textSize="18sp"
-
-                android:textColor="#233d18"
-
                 android:layout_width="match_parent"
-
                 android:layout_height="wrap_content"
-
-                android:padding="16dp"
-
-                android:gravity="center_horizontal"/>
-
-
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/poppins_bold"
+                android:paddingHorizontal="24dp"
+                android:text="Info Taman Bacaan"
+                android:textColor="#233d18"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <androidx.cardview.widget.CardView
-
                 android:id="@+id/cvAnnouncement"
-
                 android:layout_width="match_parent"
-
                 android:layout_height="wrap_content"
-
-                android:layout_marginBottom="24dp"
-
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginBottom="32dp"
+                app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="16dp"
-
-                app:cardElevation="0dp"
-
-                app:cardBackgroundColor="@color/white">
-
-
+                app:cardElevation="2dp">
 
                 <LinearLayout
-
                     android:layout_width="match_parent"
-
                     android:layout_height="wrap_content"
-
                     android:orientation="vertical"
-
-                    android:paddingBottom="12dp"
-
-                    >
-
-
-
+                    android:paddingBottom="12dp">
 
                     <androidx.viewpager2.widget.ViewPager2
-
                         android:id="@+id/vpAnnouncements"
-
                         android:layout_width="match_parent"
-
-                        android:layout_height="160dp"
-
-                        />
-
-
+                        android:layout_height="160dp" />
 
                     <com.google.android.material.tabs.TabLayout
                         android:id="@+id/tabIndicator"
                         android:layout_width="wrap_content"
                         android:layout_height="16dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    app:tabBackground="@drawable/tab_selector"
-                    app:tabGravity="center"
-                    app:tabIndicatorHeight="0dp"
-                    app:tabRippleColor="@null"
-                    android:background="@android:color/transparent"/>
-
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="8dp"
+                        android:background="@android:color/transparent"
+                        app:tabBackground="@drawable/tab_selector"
+                        app:tabGravity="center"
+                        app:tabIndicatorHeight="0dp" />
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-
-
             <TextView
-
                 android:layout_width="wrap_content"
-
                 android:layout_height="wrap_content"
-
-                android:text="Kategori"
-
-                android:textStyle="bold"
-
+                android:layout_marginBottom="12dp"
                 android:fontFamily="@font/poppins_bold"
-
-                android:textSize="18sp"
-
+                android:paddingHorizontal="24dp"
+                android:text="Mau baca apa hari ini?"
                 android:textColor="#233d18"
-
-                android:gravity="center_horizontal"
-
-
-
-                />
-
-
-
-            <com.google.android.material.chip.ChipGroup
-
-                android:id="@+id/layout_categories"
-
-                android:layout_width="wrap_content"
-
-                android:layout_height="wrap_content"
-
-                android:layout_marginTop="8dp"
-
-                app:singleSelection="true"
-
-                android:gravity="center_horizontal">
-
-
-
-                <com.google.android.material.chip.Chip
-
-                    android:text="Romance"
-
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-
-                    android:textColor="#677e5d"
-
-                    app:chipBackgroundColor="#fff9f9" />
-
-
-
-                <com.google.android.material.chip.Chip
-
-                    android:text="Horror"
-
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-
-                    android:textColor="#677e5d"
-
-                    app:chipBackgroundColor="#fff9f9" />
-
-
-
-                <com.google.android.material.chip.Chip
-
-                    android:text="Comedy"
-
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-
-                    android:textColor="#677e5d"
-
-                    app:chipBackgroundColor="#fff9f9" />
-
-
-
-                <com.google.android.material.chip.Chip
-
-                    android:text="Fiction"
-
-                    android:layout_width="wrap_content"
-
-                    android:layout_height="wrap_content"
-
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-
-                    android:textColor="#677e5d"
-
-                    app:chipBackgroundColor="#fff9f9" />
-
-            </com.google.android.material.chip.ChipGroup>
-
-
-
-            <TextView
-
-                android:id="@+id/tv_category_title"
-
-                android:layout_width="wrap_content"
-
-                android:layout_height="wrap_content"
-
-                android:text="Buku Berdasarkan Kategori"
-
-                android:fontFamily="@font/poppins_bold"
-
-                android:textStyle="bold"
-
                 android:textSize="18sp"
+                android:textStyle="bold" />
 
-                android:textColor="#233d18"
-
-                android:layout_marginTop="16dp"
-
-                android:gravity="center_horizontal"/>
-
-
-
-            <androidx.recyclerview.widget.RecyclerView
-
-                android:id="@+id/rv_category_books"
-
+            <HorizontalScrollView
                 android:layout_width="match_parent"
-
                 android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:scrollbars="none">
 
-                android:layout_marginTop="8dp"
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/layout_categories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:selectionRequired="true"
+                    app:singleLine="true"
+                    app:singleSelection="true">
 
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:paddingHorizontal="24dp">
 
-                android:textColor="#233d18"/>
+                <TextView
+                    android:id="@+id/tv_category_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Rekomendasi"
+                    android:textColor="#233d18"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-
-
-            <Button
-
-                android:id="@+id/btn_explore"
-
-                android:layout_width="wrap_content"
-
-                android:layout_height="wrap_content"
-
-                android:text="Lihat Semua"
-
-                android:textStyle="bold"
-
-                android:fontFamily="@font/poppins_regular"
-
-                android:textColor="#fff9f9"
-
-                android:layout_marginTop="12dp"
-
-                android:paddingHorizontal="28dp"
-
-                android:backgroundTint="#677e5d"
-
-                android:elevation="2dp" />
-
-
-
-            <TextView
-
-                android:layout_width="wrap_content"
-
-                android:layout_height="wrap_content"
-
-                android:text="Buku yang Baru Hadir"
-
-                android:fontFamily="@font/poppins_bold"
-
-                android:textStyle="bold"
-
-                android:textSize="18sp"
-
-                android:textColor="#233d18"
-
-                android:layout_marginTop="28dp"
-
-                android:gravity="center_horizontal"/>
-
-
+                <TextView
+                    android:id="@+id/btn_see_all_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Lihat Semua"
+                    android:textColor="#677e5d"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
-
-                android:id="@+id/rv_new_books"
-
+                android:id="@+id/rv_category_books"
                 android:layout_width="match_parent"
-
                 android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp" />
 
-                android:layout_marginTop="8dp"
+            <TextView
+                android:id="@+id/tv_empty_category"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginHorizontal="24dp"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="center"
+                android:text="Belum ada buku di kategori ini"
+                android:textColor="#999999"
+                android:textSize="14sp"
+                android:visibility="gone" />
 
-                android:textColor="#233d18"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="24dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Baru Hadir"
+                    android:textColor="#233d18"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btn_see_all_new"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Lihat Semua"
+                    android:textColor="#677e5d"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_new_books"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:textColor="#233d18" />
 
         </LinearLayout>
-
 
 
     </LinearLayout>

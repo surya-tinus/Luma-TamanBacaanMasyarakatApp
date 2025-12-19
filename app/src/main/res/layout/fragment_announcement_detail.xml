@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="32dp"
     android:background="@android:color/white"> <androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/headerContainer"
     android:layout_width="match_parent"
@@ -107,7 +108,7 @@
             android:textColor="#D32F2F"
             android:backgroundTint="#FFEBEE"
             android:layout_marginEnd="8dp"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
+            />
 
         <Button
             android:id="@+id/btnEdit"

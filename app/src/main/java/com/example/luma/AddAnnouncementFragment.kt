@@ -74,5 +74,9 @@ class AddAnnouncementFragment : Fragment() {
                     findNavController().popBackStack()
                 }
         }
+
+        view.findViewById<Button>(R.id.btnCancelAnnouncement).setOnClickListener {
+            findNavController().popBackStack() // Kembali ke halaman sebelumnya
+        }
     }
 }

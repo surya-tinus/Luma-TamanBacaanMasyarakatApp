@@ -16,7 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Locale
-
+import android.widget.ImageView
+import androidx.navigation.fragment.findNavController
 class MemberDetailFragment : Fragment() {
 
     private lateinit var rvHistory: RecyclerView
@@ -45,7 +46,12 @@ class MemberDetailFragment : Fragment() {
         val tvEmail = view.findViewById<TextView>(R.id.tvDetailEmail)
         val tvRole = view.findViewById<TextView>(R.id.tvDetailRole)
         val tvPhone = view.findViewById<TextView>(R.id.tvDetailPhone)
-        val btnBack = view.findViewById<Button>(R.id.btnBackMember)
+        val btnBack = view.findViewById<ImageView>(R.id.btnBackMember)
+
+
+        btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
 
         // Init UI Baru
         cvActiveStatus = view.findViewById(R.id.cvActiveStatus)

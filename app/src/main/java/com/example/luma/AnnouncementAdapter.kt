@@ -11,6 +11,7 @@ import java.util.Locale
 
 class AnnouncementAdapter(
     private var list: List<Announcement>,
+    private val isAdmin: Boolean = false, // TAMBAHKAN PARAMETER INI (Default false buat user)
     private val onClick: (Announcement) -> Unit
 ) : RecyclerView.Adapter<AnnouncementAdapter.ViewHolder>() {
 
@@ -18,12 +19,19 @@ class AnnouncementAdapter(
         val tvDate: TextView = view.findViewById(R.id.tvAnnounceDate)
         val tvTitle: TextView = view.findViewById(R.id.tvAnnounceTitle)
         val tvContent: TextView = view.findViewById(R.id.tvAnnounceContent)
-        val tvTime: TextView = view.findViewById(R.id.tvAnnounceTime)
+        // Gunakan safe call (?.) karena tvTime mungkin didisable/gone di layout admin
+        val tvTime: TextView? = view.findViewById(R.id.tvAnnounceTime)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_announcement, parent, false)
+        // LOGIC PEMILIHAN LAYOUT
+        val layoutId = if (isAdmin) {
+            R.layout.item_announcement_admin // Layout baru yang wrap_content (Kecil)
+        } else {
+            R.layout.item_announcement // Layout lama yang match_parent (User Slider)
+        }
+
+        val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
         return ViewHolder(view)
     }
 
@@ -39,7 +47,8 @@ class AnnouncementAdapter(
         holder.tvDate.text = dateFormat.format(item.date)
 
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-        holder.tvTime.text = "Pukul ${timeFormat.format(item.date)}"
+        // tvTime pakai safe call (?.) karena di layout admin mungkin tidak kita pasang
+        holder.tvTime?.text = "Pukul ${timeFormat.format(item.date)}"
 
         holder.itemView.setOnClickListener {
             onClick(item)
