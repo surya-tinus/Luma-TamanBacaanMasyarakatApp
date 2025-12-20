@@ -128,7 +128,32 @@
                         app:tabIndicatorHeight="0dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+            <LinearLayout
+                android:id="@+id/layout_recommendation_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"> <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/poppins_bold"
+                android:paddingHorizontal="24dp"
+                android:text="Rekomendasi Spesial Untukmu "
+                android:textColor="#233d18"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_recommendations"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:layout_marginBottom="24dp"/>
+            </LinearLayout>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -174,7 +199,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/poppins_bold"
-                    android:text="Rekomendasi"
+                    android:text="Rekomendasi Kategori Ini"
                     android:textColor="#233d18"
                     android:textSize="18sp"
                     android:textStyle="bold" />
